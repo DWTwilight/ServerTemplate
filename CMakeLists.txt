@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 # external libraries
 add_subdirectory(external/libuv)
+add_subdirectory(external/jsoncpp)
 
 add_subdirectory(include)
 
