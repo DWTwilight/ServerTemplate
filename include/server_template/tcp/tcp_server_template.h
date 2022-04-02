@@ -13,7 +13,7 @@ class TCPServerTemplate : public base::ServerBase
 public:
 
 private:
-    TCPBasedProtocol* protocol;
+    
 };
 
 SERVER_TEMPLATE_TCP_NAMESPACE_END
