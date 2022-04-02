@@ -1,3 +1,3 @@
 #include "server_template_ns.h"
 
-void func() {}
+void server_template::func() {}

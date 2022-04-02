@@ -5,7 +5,7 @@
 
 SERVER_TEMPLATE_BASE_NAMESPACE_BEGIN
 
-class IServerBase
+class ServerBase
 {
 public:
     virtual void run() = 0;
