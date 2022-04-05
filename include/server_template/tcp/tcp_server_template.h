@@ -16,13 +16,13 @@ SERVER_TEMPLATE_TCP_NAMESPACE_BEGIN
 #endif
 
 template <typename Protocol>
-class TCPServerTemplate : public base::ServerBase, public uv_tcp_t
+class TCPServerTemplate : public uv_tcp_t, public base::ServerBase
 {
 public:
-    virtual void run() override
+    virtual void run(uv_loop_t *loop) override
     {
-        this->loadConfig;
-
+        this->loadConfig();
+        this->loop = loop;
         assert(this->loop != NULL);
         // parse address
         sockaddr_storage addr;
@@ -44,19 +44,18 @@ public:
             abort();
         }
         // Start listen
-        r = uv_listen((uv_stream_t *)this, 512,
+        auto tcpHandle = (uv_tcp_s *)this;
+        tcpHandle->data = this;
+        r = uv_listen((uv_stream_t *)tcpHandle, 512,
                       [](uv_stream_t *server, int status)
-                      { ((TCPServerTemplate *)server)->onConnection(status); });
+                      {
+                          ((TCPServerTemplate<Protocol> *)server->data)->onConnection(status);
+                      });
 
         if (r != 0)
         {
             abort();
         }
-    }
-
-    virtual void useLoop(uv_loop_t *loop) override
-    {
-        this->loop = loop;
     }
 
     virtual void useIpAddress(util::IpAddress &ipAddress) override
@@ -73,15 +72,19 @@ public:
 
         // Accept connection
         auto *client = new uv_tcp_t;
+        printf("init\n");
         auto r = uv_tcp_init(this->loop, client);
+        printf("init complete\n");
         if (r != 0)
         {
+            printf("error init client\n");
             delete client;
             return;
         }
         r = uv_accept((uv_stream_t *)this, (uv_stream_t *)client);
         if (r == 0)
         {
+            printf("accepted\n");
             // create a pipe to send client handle
             auto pipe = new uv_pipe_t;
             // random pipe name
@@ -144,6 +147,7 @@ public:
         }
         else
         {
+            printf("error accpet\n");
             uv_close((uv_handle_t *)client,
                      [](uv_handle_t *handle)
                      {
@@ -156,17 +160,17 @@ private:
     void loadConfig()
     {
         assert(this->config != NULL);
-
         this->config->configServer(this);
     }
 
     util::IpAddress ipAddress;
-    TCPBasedProtocol::ProtocolFactory protocolFactory = [](base::ConfigurationBase *config)
+    TCPBasedProtocol::ProtocolFactory protocolFactory =
+        [](base::ConfigurationBase *config)
     {
         auto protocol = dynamic_cast<TCPBasedProtocol *>(new Protocol());
         protocol->useConfig(config);
         return protocol;
-    }
+    };
 };
 
 SERVER_TEMPLATE_TCP_NAMESPACE_END

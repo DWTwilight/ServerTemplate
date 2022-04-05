@@ -24,8 +24,7 @@ public:
         this->config = dynamic_cast<ConfigurationBase *>(new ConfigClass());
     }
 
-    virtual void run() = 0;
-    virtual void useLoop(uv_loop_t* loop) = 0;
+    virtual void run(uv_loop_t* loop) = 0;
     virtual void useIpAddress(util::IpAddress& ipAddress) = 0;
 
 protected:
