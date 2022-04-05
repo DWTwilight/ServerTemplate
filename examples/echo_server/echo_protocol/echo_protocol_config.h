@@ -3,11 +3,16 @@
 
 #include "echo_protocol.h"
 
-class EchoProtocol;
+class EchoProtocolConfigurations
+{
+public:
+    virtual void useEchoPrefix(const char* prefix) = 0;
+};
+
 class EchoProtocolConfig
 {
 public:
-    virtual void configEcho(EchoProtocol *protocol) = 0;
+    virtual void configEcho(EchoProtocolConfigurations *protocol) = 0;
 };
 
 #endif

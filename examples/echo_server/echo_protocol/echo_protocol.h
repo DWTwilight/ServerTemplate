@@ -6,7 +6,7 @@
 #include <iostream>
 #include "echo_protocol_config.h"
 
-class EchoProtocol : public server_template::tcp::TCPBasedProtocol
+class EchoProtocol : public server_template::tcp::TCPBasedProtocol, public EchoProtocolConfigurations
 {
 public:
     virtual void onTCPData(server_template::tcp::ConnectionHandlerBase *connHandler, ssize_t nread, char *bytes) override
@@ -21,7 +21,7 @@ public:
         echoConfig->configEcho(this);
     }
 
-    void useEchoPrefix(const char* prefix)
+    virtual void useEchoPrefix(const char* prefix) override
     {
         this->echoPrefix = std::string(prefix);
     }

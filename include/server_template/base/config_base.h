@@ -2,14 +2,20 @@
 #define SERVER_TEMPLATE_BASE_CONFIG_BASE_H_
 
 #include "base_ns.h"
+#include "../util/ip_address.h"
 
 SERVER_TEMPLATE_BASE_NAMESPACE_BEGIN
 
-class ServerBase;
+class ServerConfigurations
+{
+public:
+    virtual void useIpAddress(util::IpAddress& ipAddress) = 0;
+};
+
 class ConfigurationBase
 {
 public:
-    virtual void configServer(ServerBase* server) = 0;
+    virtual void configServer(ServerConfigurations* server) = 0;
 };
 
 SERVER_TEMPLATE_BASE_NAMESPACE_END

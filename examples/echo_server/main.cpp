@@ -3,14 +3,14 @@
 class Configuration : public server_template::base::ConfigurationBase, public EchoProtocolConfig
 {
 public:
-    virtual void configServer(server_template::base::ServerBase* server) override
+    virtual void configServer(server_template::base::ServerConfigurations *configurations) override
     {
-        server->useIpAddress(server_template::util::IpAddress("0.0.0.0", 8180));
+        configurations->useIpAddress(server_template::util::IpAddress("0.0.0.0", 8180));
     }
 
-    virtual void configEcho(EchoProtocol *protocol) override
+    virtual void configEcho(EchoProtocolConfigurations *configurations) override
     {
-        protocol->useEchoPrefix("server gets: ");
+        configurations->useEchoPrefix("server gets: ");
     }
 };
 

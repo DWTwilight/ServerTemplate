@@ -3,11 +3,10 @@
 
 #include "config_base.h"
 #include <uv.h>
-#include "../util/ip_address.h"
 
 SERVER_TEMPLATE_BASE_NAMESPACE_BEGIN
 
-class ServerBase
+class ServerBase : public ServerConfigurations
 {
 public:
     virtual ~ServerBase()
@@ -25,7 +24,6 @@ public:
     }
 
     virtual void run(uv_loop_t* loop) = 0;
-    virtual void useIpAddress(util::IpAddress& ipAddress) = 0;
 
 protected:
     ConfigurationBase *config = NULL;
