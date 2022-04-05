@@ -49,7 +49,11 @@ public:
         r = uv_listen((uv_stream_t *)tcpHandle, 512,
                       [](uv_stream_t *server, int status)
                       {
-                          ((TCPServerTemplate<Protocol> *)server->data)->onConnection(status);
+                          if (status < 0)
+                          {
+                              return;
+                          }
+                          ((TCPServerTemplate<Protocol> *)server->data)->onConnection();
                       });
 
         if (r != 0)
@@ -63,28 +67,20 @@ public:
         this->ipAddress = ipAddress;
     }
 
-    void onConnection(int status)
+    void onConnection()
     {
-        if (status < 0)
-        {
-            return;
-        }
-
         // Accept connection
         auto *client = new uv_tcp_t;
-        printf("init\n");
         auto r = uv_tcp_init(this->loop, client);
-        printf("init complete\n");
         if (r != 0)
         {
-            printf("error init client\n");
             delete client;
             return;
         }
-        r = uv_accept((uv_stream_t *)this, (uv_stream_t *)client);
+        auto tcpHandle = (uv_tcp_s *)this;
+        r = uv_accept((uv_stream_t *)tcpHandle, (uv_stream_t *)client);
         if (r == 0)
         {
-            printf("accepted\n");
             // create a pipe to send client handle
             auto pipe = new uv_pipe_t;
             // random pipe name

@@ -21,14 +21,13 @@ typedef struct
 class TCPConnectionHandler : public uv_tcp_t, public ConnectionHandlerBase
 {
 public:
-
     static void allocBuffer(uv_handle_t *handle, size_t suggestedSize, uv_buf_t *buf)
     {
         buf->base = new char[suggestedSize];
         buf->len = suggestedSize;
     }
 
-    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase* config, TCPBasedProtocol::ProtocolFactory protocolFactory)
+    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase *config, TCPBasedProtocol::ProtocolFactory protocolFactory)
     {
         this->serverPipe = pipe;
         this->pipeName = pipeName;
@@ -49,7 +48,8 @@ public:
         auto writeReq = new uv_write_t;
 
         auto buffer = uv_buf_init(bytes, length);
-        uv_write(writeReq, (uv_stream_t *)this, &buffer, 1,
+        auto tcpHandle = (uv_tcp_s *)this;
+        uv_write(writeReq, (uv_stream_t *)tcpHandle, &buffer, 1,
                  [](uv_write_t *req, int status)
                  {
                      delete req;
@@ -58,10 +58,12 @@ public:
 
     virtual void closeConnection() override
     {
-        uv_close((uv_handle_t *)this,
+        auto tcpHandle = (uv_tcp_s *)this;
+        tcpHandle->data = this;
+        uv_close((uv_handle_t *)tcpHandle,
                  [](uv_handle_t *handle)
                  {
-                     ((TCPConnectionHandler *)handle)->onConnectionClose();
+                     ((TCPConnectionHandler *)handle->data)->onConnectionClose();
                  });
     }
 
@@ -80,31 +82,33 @@ public:
         if (nread > 0)
         {
             auto r = uv_tcp_init(this->loop, this);
+            auto tcpHandle = (uv_tcp_s *)this;
+            tcpHandle->data = this;
             if (r == 0)
             {
-                r = uv_accept(stream, (uv_stream_t *)this);
+                r = uv_accept(stream, (uv_stream_t *)tcpHandle);
                 if (r == 0)
                 {
                     this->closePipe();
                     this->protocol = this->protocolFactory(this->config);
                     this->protocol->onTCPConnectionOpen(this);
-                    uv_read_start((uv_stream_t *)this, allocBuffer,
+                    uv_read_start((uv_stream_t *)tcpHandle, allocBuffer,
                                   [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
                                   {
                                       if (nread > 0)
                                       {
-                                          ((TCPConnectionHandler *)stream)->onRead(stream, nread, buf);
+                                          ((TCPConnectionHandler *)stream->data)->onRead(stream, nread, buf);
                                       }
                                       else
                                       {
-                                          ((TCPConnectionHandler *)stream)->closeConnection();
+                                          ((TCPConnectionHandler *)stream->data)->closeConnection();
                                       }
                                       delete buf->base;
                                   });
                 }
                 else
                 {
-                    uv_close((uv_handle_t *)this, NULL);
+                    uv_close((uv_handle_t *)tcpHandle, NULL);
                     this->closePipe();
                 }
             }
@@ -201,7 +205,7 @@ private:
     uv_pipe_t *serverPipe;
     std::string pipeName;
     uv_pipe_t *pipe;
-    base::ConfigurationBase* config;
+    base::ConfigurationBase *config;
 
     TCPBasedProtocol::ProtocolFactory protocolFactory;
     TCPBasedProtocol *protocol = NULL;

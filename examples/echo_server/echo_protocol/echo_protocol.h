@@ -11,7 +11,8 @@ class EchoProtocol : public server_template::tcp::TCPBasedProtocol
 public:
     virtual void onTCPData(server_template::tcp::ConnectionHandlerBase *connHandler, ssize_t nread, char *bytes) override
     {
-        std::cout << echoPrefix.append(bytes, nread) << std::endl;
+        std::cout << echoPrefix << std::string(bytes, nread) << std::endl;
+        connHandler->writeBytes(bytes, nread);
     }
 
     virtual void useConfig(server_template::base::ConfigurationBase *config) override
