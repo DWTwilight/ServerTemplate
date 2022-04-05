@@ -5,9 +5,11 @@
 
 SERVER_TEMPLATE_BASE_NAMESPACE_BEGIN
 
+class ServerBase;
 class ConfigurationBase
 {
-
+public:
+    virtual void configServer(ServerBase* server) = 0;
 };
 
 SERVER_TEMPLATE_BASE_NAMESPACE_END

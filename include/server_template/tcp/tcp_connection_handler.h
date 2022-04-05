@@ -1,9 +1,7 @@
 #ifndef SERVER_TEMPLATE_TCP_TCP_CONNECTION_HANDLER_H_
 #define SERVER_TEMPLATE_TCP_TCP_CONNECTION_HANDLER_H_
 
-#include <functional>
 #include <string>
-#include <uv.h>
 #include "tcp_based_protocol.h"
 
 SERVER_TEMPLATE_TCP_NAMESPACE_BEGIN
@@ -23,7 +21,6 @@ typedef struct
 class TCPConnectionHandler : public uv_tcp_t, public ConnectionHandlerBase
 {
 public:
-    using ProtocolFactory = std::function<TCPBasedProtocol *()>;
 
     static void allocBuffer(uv_handle_t *handle, size_t suggestedSize, uv_buf_t *buf)
     {
@@ -31,10 +28,11 @@ public:
         buf->len = suggestedSize;
     }
 
-    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, ProtocolFactory protocolFactory)
+    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase* config, TCPBasedProtocol::ProtocolFactory protocolFactory)
     {
         this->serverPipe = pipe;
         this->pipeName = pipeName;
+        this->config = config;
         this->protocolFactory = protocolFactory;
     }
 
@@ -88,7 +86,7 @@ public:
                 if (r == 0)
                 {
                     this->closePipe();
-                    this->protocol = this->protocolFactory();
+                    this->protocol = this->protocolFactory(this->config);
                     this->protocol->onTCPConnectionOpen(this);
                     uv_read_start((uv_stream_t *)this, allocBuffer,
                                   [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
@@ -203,8 +201,9 @@ private:
     uv_pipe_t *serverPipe;
     std::string pipeName;
     uv_pipe_t *pipe;
+    base::ConfigurationBase* config;
 
-    ProtocolFactory protocolFactory;
+    TCPBasedProtocol::ProtocolFactory protocolFactory;
     TCPBasedProtocol *protocol = NULL;
 };
 
