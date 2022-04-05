@@ -161,9 +161,10 @@ private:
 
     util::IpAddress ipAddress;
     TCPBasedProtocol::ProtocolFactory protocolFactory =
-        [](base::ConfigurationBase *config)
+        [](base::ConfigurationBase *config, ConnectionHandlerBase *connHandler)
     {
         auto protocol = dynamic_cast<TCPBasedProtocol *>(new Protocol());
+        protocol->setConnectionHandler(connHandler);
         protocol->useConfig(config);
         return protocol;
     };

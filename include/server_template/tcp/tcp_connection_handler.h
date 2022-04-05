@@ -69,12 +69,12 @@ public:
 
     void onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     {
-        this->protocol->onTCPData(this, nread, buf->base);
+        this->protocol->onTCPData(nread, buf->base);
     }
 
     void onConnectionClose()
     {
-        this->protocol->onTCPConnectionClose(this);
+        this->protocol->onTCPConnectionClose();
     }
 
     void onPipeRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
@@ -90,8 +90,8 @@ public:
                 if (r == 0)
                 {
                     this->closePipe();
-                    this->protocol = this->protocolFactory(this->config);
-                    this->protocol->onTCPConnectionOpen(this);
+                    this->protocol = this->protocolFactory(this->config, this);
+                    this->protocol->onTCPConnectionOpen();
                     uv_read_start((uv_stream_t *)tcpHandle, allocBuffer,
                                   [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
                                   {

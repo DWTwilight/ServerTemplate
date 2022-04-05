@@ -9,7 +9,7 @@
 class EchoProtocol : public server_template::tcp::TCPBasedProtocol, public EchoProtocolConfigurations
 {
 public:
-    virtual void onTCPData(server_template::tcp::ConnectionHandlerBase *connHandler, ssize_t nread, char *bytes) override
+    virtual void onTCPData(ssize_t nread, char *bytes) override
     {
         std::cout << echoPrefix << std::string(bytes, nread) << std::endl;
         connHandler->writeBytes(bytes, nread);

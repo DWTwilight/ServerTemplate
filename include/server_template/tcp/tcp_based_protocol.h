@@ -12,15 +12,23 @@ SERVER_TEMPLATE_TCP_NAMESPACE_BEGIN
 class TCPBasedProtocol
 {
 public:
-    using ProtocolFactory = std::function<TCPBasedProtocol *(base::ConfigurationBase*)>;
+    using ProtocolFactory = std::function<TCPBasedProtocol *(base::ConfigurationBase *, ConnectionHandlerBase *)>;
 
-    virtual void onTCPData(ConnectionHandlerBase* connHandler, ssize_t nread, char* bytes) {}
+    virtual void onTCPData(ssize_t nread, char *bytes) {}
 
-    virtual void onTCPConnectionOpen(ConnectionHandlerBase* connHandler) {}
+    virtual void onTCPConnectionOpen() {}
 
-    virtual void onTCPConnectionClose(ConnectionHandlerBase* connHandler) {}
+    virtual void onTCPConnectionClose() {}
 
-    virtual void useConfig(base::ConfigurationBase* config) = 0;
+    virtual void useConfig(base::ConfigurationBase *config) = 0;
+
+    void setConnectionHandler(ConnectionHandlerBase *connHandler)
+    {
+        this->connHandler = connHandler;
+    }
+
+protected:
+    ConnectionHandlerBase *connHandler = NULL;
 };
 
 SERVER_TEMPLATE_TCP_NAMESPACE_END

@@ -6,7 +6,7 @@
 class EchoProtocolConfigurations
 {
 public:
-    virtual void useEchoPrefix(const char* prefix) = 0;
+    virtual void useEchoPrefix(const char *prefix) = 0;
 };
 
 class EchoProtocolConfig
