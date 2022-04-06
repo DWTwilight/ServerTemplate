@@ -1,5 +1,5 @@
-#ifndef SERVER_TEMPLATE_HTTP_STATUS_CODE_H_
-#define SERVER_TEMPLATE_HTTP_STATUS_CODE_H_
+#ifndef SERVER_TEMPLATE_HTTP_HTTP_STATUS_H_
+#define SERVER_TEMPLATE_HTTP_HTTP_STATUS_H_
 
 #include "http_ns.h"
 #include <string>
@@ -77,7 +77,7 @@ enum class HttpStatus
 class HttpStatusTool
 {
 public:
-    static const char* getStatusString(HttpStatus status)
+    static const char *getStatusString(const HttpStatus &status)
     {
         switch (status)
         {
@@ -92,12 +92,6 @@ public:
     }
 };
 
-void test()
-{
-    auto status = HttpStatus::BAD_GATEWAY;
-    auto str = HttpStatusTool::getStatusString(status);
-}
-
 SERVER_TEMPLATE_HTTP_NAMESPACE_END
 
-#endif // !SERVER_TEMPLATE_HTTP_STATUS_CODE_H_
+#endif // !SERVER_TEMPLATE_HTTP_HTTP_STATUS_H_
