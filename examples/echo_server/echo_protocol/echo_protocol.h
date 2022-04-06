@@ -11,8 +11,18 @@ class EchoProtocol : public server_template::tcp::TCPBasedProtocol, public EchoP
 public:
     virtual void onTCPData(ssize_t nread, char *bytes) override
     {
-        std::cout << echoPrefix << std::string(bytes, nread) << std::endl;
+        std::cout << this->connHandler->getClientIpAddress()->getSocketAddress() << echoPrefix << std::string(bytes, nread) << std::endl;
         connHandler->writeBytes(bytes, nread);
+    }
+
+    virtual void onTCPConnectionOpen() override 
+    {
+        std::cout << this->connHandler->getClientIpAddress()->getSocketAddress() << " has connected" << std::endl;
+    }
+
+    virtual void onTCPConnectionClose() override 
+    {
+        std::cout << this->connHandler->getClientIpAddress()->getSocketAddress() << " has disconnected" << std::endl;
     }
 
     virtual void useConfig(server_template::base::ConfigurationBase *config) override

@@ -10,7 +10,7 @@ public:
 
     virtual void configEcho(EchoProtocolConfigurations *configurations) override
     {
-        configurations->useEchoPrefix("server gets: ");
+        configurations->useEchoPrefix(" :: ");
     }
 };
 

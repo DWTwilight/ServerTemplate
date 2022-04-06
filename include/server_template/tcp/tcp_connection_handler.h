@@ -67,6 +67,11 @@ public:
                  });
     }
 
+    virtual util::IpAddress *getClientIpAddress() override
+    {
+        return &this->clientIpAddress;
+    }
+
     void onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     {
         this->protocol->onTCPData(nread, buf->base);
@@ -90,6 +95,7 @@ public:
                 if (r == 0)
                 {
                     this->closePipe();
+                    this->setClientIpAddress();
                     this->protocol = this->protocolFactory(this->config, this);
                     this->protocol->onTCPConnectionOpen();
                     uv_read_start((uv_stream_t *)tcpHandle, allocBuffer,
@@ -202,10 +208,41 @@ public:
     }
 
 private:
+    void setClientIpAddress()
+    {
+        auto tcpHandle = (uv_tcp_s *)this;
+        sockaddr_storage addr;
+        socklen_t len = sizeof(addr);
+        char ipstr[47];
+        int port;
+
+        auto r = uv_tcp_getpeername(tcpHandle, (sockaddr *)&addr, &len);
+        if (r != 0)
+        {
+            return;
+        }
+
+        if (addr.ss_family == AF_INET)
+        {
+            // ipv4
+            sockaddr_in *addr_i4 = (sockaddr_in *)&addr;
+            uv_ip4_name(addr_i4, ipstr, sizeof(ipstr));
+            this->clientIpAddress = util::IpAddress(ipstr, ntohs(addr_i4->sin_port));
+        }
+        else
+        {
+            // ipv6
+            sockaddr_in6 *addr_i6 = (sockaddr_in6 *)&addr;
+            uv_ip6_name(addr_i6, ipstr, sizeof(ipstr));
+            this->clientIpAddress = util::IpAddress(ipstr, ntohs(addr_i6->sin6_port), util::IpAddressType::IPV6);
+        }
+    }
+
     uv_pipe_t *serverPipe;
     std::string pipeName;
     uv_pipe_t *pipe;
     base::ConfigurationBase *config;
+    util::IpAddress clientIpAddress;
 
     TCPBasedProtocol::ProtocolFactory protocolFactory;
     TCPBasedProtocol *protocol = NULL;

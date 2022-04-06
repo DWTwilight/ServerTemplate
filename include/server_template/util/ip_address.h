@@ -23,8 +23,9 @@ public:
         this->type = type;
     }
 
-    IpAddress(const char* address, int port = 8080, IpAddressType type = IpAddressType::IPV4) {
-        new(this) IpAddress(std::string(address), port, type);
+    IpAddress(const char *address, int port = 8080, IpAddressType type = IpAddressType::IPV4)
+    {
+        new (this) IpAddress(std::string(address), port, type);
     }
 
     int parseAddress(sockaddr_storage *addr)
@@ -39,12 +40,19 @@ public:
         }
     }
 
-    int getPort() const {
+    int getPort() const
+    {
         return this->port;
     }
 
-    const std::string& getAddress() const {
+    const std::string &getAddress() const
+    {
         return this->address;
+    }
+
+    std::string getSocketAddress() const
+    {
+        return StringUtil::format("%s:%d", this->address.c_str(), this->port);
     }
 
 private:
