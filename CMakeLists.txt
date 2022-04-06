@@ -12,3 +12,6 @@ add_subdirectory(external/jsoncpp)
 add_subdirectory(include)
 
 add_subdirectory(examples)
+
+enable_testing()
+add_subdirectory(test)
