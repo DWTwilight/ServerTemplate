@@ -1,5 +1,7 @@
 #include <server_template/http/http_status.h>
-#define ASSERT(exp) if(!(exp)) return -1;
+#define ASSERT(exp) \
+    if (!(exp))     \
+        return -1;
 
 int main()
 {
