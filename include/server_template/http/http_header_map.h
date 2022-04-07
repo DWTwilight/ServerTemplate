@@ -30,6 +30,17 @@ public:
         }
     }
 
+    std::string getValueOrDefault(const std::string& key, const std::string& defaultValue)
+    {
+        std::string headerKey;
+        util::StringUtil::toLower(key, headerKey);
+        if (map.find(headerKey) != map.end())
+        {
+            return defaultValue;
+        }
+        return map[headerKey];
+    }
+
     void toBytes(util::ByteArray& bytes) const
     {
         for (auto pair : map)

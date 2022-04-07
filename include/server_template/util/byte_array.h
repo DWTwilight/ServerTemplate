@@ -15,6 +15,11 @@ public:
         this->resize(0);
     }
 
+    ByteArray(size_t size)
+    {
+        this->reserve(size);
+    }
+
     ByteArray(const char* bytes, size_t length)
     {
         this->resize(length);

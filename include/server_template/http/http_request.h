@@ -13,7 +13,7 @@ public:
     std::string uri;
     double version;
     HttpHeaderMap headerMap;
-    std::string payload;
+    util::ByteArray payload;
 };
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_END
