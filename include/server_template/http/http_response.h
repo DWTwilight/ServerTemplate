@@ -12,31 +12,29 @@ public:
     HttpStatus status;
     double version;
     HttpHeaderMap headerMap;
-    std::string payload;
+    util::ByteArray payload;
 
-    std::string toBytes()
+    void toBytes(util::ByteArray& bytes)
     {
         // initial line
-        auto response = util::StringUtil::format("HTTP/%.1lf %d %s",
-                                                 this->version, (int)this->status, HttpStatusTool::getStatusString(this->status));
-        response.append(CRLF);
+        bytes.append(util::StringUtil::format("HTTP/%.1lf %d %s",
+                                                 this->version, (int)this->status, HttpStatusTool::getStatusString(this->status)));
+        bytes.append(CRLF);
 
         // headers
-        if (payload.length() > 0)
+        if (payload.size() > 0)
         {
-            headerMap[CONTENT_LENGTH_HEADER] = std::to_string(payload.length());
+            headerMap[CONTENT_LENGTH_HEADER] = std::to_string(payload.size());
         }
         else
         {
             headerMap.removeValue(CONTENT_LENGTH_HEADER);
         }
-        response.append(headerMap.toBytes());
-        response.append(CRLF);
+        headerMap.toBytes(bytes);
+        bytes.append(CRLF);
 
         // payload
-        response.append(payload);
-
-        return response;
+        bytes.append(payload);
     }
 };
 

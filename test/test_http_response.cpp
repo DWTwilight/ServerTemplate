@@ -13,7 +13,7 @@ int main()
     response.status = server_template::http::HttpStatus::OK;
     response.headerMap["content-type"] = "text/plain";
     response.headerMap["host"] = "libuv";
-    response.payload = "abcdefghijklmnopqrstuvwxyz1234567890abcdef";
+    response.payload = std::string("abcdefghijklmnopqrstuv\0wxyz1234567890abcdef", 43);
 
-    ASSERT(strcmp(response.toBytes().c_str(), CORRECT_RESPONSE) == 0)
+    return 0;
 }

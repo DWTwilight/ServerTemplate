@@ -4,6 +4,7 @@
 #include "http_ns.h"
 #include "../util/string_util.h"
 #include <unordered_map>
+#include "../util/byte_array.h"
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 
@@ -29,15 +30,13 @@ public:
         }
     }
 
-    std::string toBytes() const
+    void toBytes(util::ByteArray& bytes) const
     {
-        std::string bytes;
         for (auto pair : map)
         {
             bytes.append(util::StringUtil::format("%s: %s", pair.first.c_str(), pair.second.c_str()));
             bytes.append(CRLF);
         }
-        return bytes;
     }
 
 private:
