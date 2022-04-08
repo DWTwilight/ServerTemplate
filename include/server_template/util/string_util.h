@@ -102,6 +102,36 @@ public:
 		dest.resize(src.size());
 		std::transform(src.begin(), src.end(), dest.begin(), ::toupper);
 	}
+
+	static bool isUpper(char input)
+    {
+        return input >= 'A' && input <= 'Z';
+    }
+
+    static bool isLower(char input)
+    {
+        return input >= 'a' && input <= 'z';
+    }
+
+	static bool isAlpha(char input)
+	{
+		return isUpper(input) || isLower(input);
+	}
+
+	static bool isNumber(char input)
+	{
+		return input >= '0' && input <= '9';
+	}
+
+    static bool isLWSP(char input)
+    {
+        return input == ' ' || input == '\t';
+    }
+
+    static bool isCtls(char input)
+    {
+        return (input >= 0 && input <= 31) || input == 127;
+    }
 };
 
 SERVER_TEMPLATE_UTIL_NAMESPACE_END

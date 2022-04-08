@@ -6,6 +6,8 @@ file(GLOB ST_LIB_FILES
 "server_template/base/*.h"
 "server_template/tcp/*.h"
 "server_template/util/*.h"
+"server_template/http/*.h"
+"server_template/ws/*.h"
 )
 
 add_library(${ST_LIB_NAME} STATIC ${ST_LIB_FILES})

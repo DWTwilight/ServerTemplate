@@ -3,6 +3,7 @@
 
 #include "http_method.h"
 #include "http_header_map.h"
+#include "../util/uri.h"
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 
@@ -10,7 +11,7 @@ class HttpRequest
 {
 public:
     HttpMethod method;
-    std::string uri;
+    util::Uri uri;
     double version;
     HttpHeaderMap headerMap;
     util::ByteArray payload;
