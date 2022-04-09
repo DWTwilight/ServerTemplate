@@ -10,15 +10,16 @@ class HttpResponse
 {
 public:
     HttpStatus status;
-    double version;
+    int majorVersion;
+    int minorVersion;
     HttpHeaderMap headerMap;
     util::ByteArray payload;
 
     void toBytes(util::ByteArray& bytes)
     {
         // initial line
-        bytes.append(util::StringUtil::format("HTTP/%.1lf %d %s",
-                                                 this->version, (int)this->status, HttpStatusTool::getStatusString(this->status)));
+        bytes.append(util::StringUtil::format("HTTP/%d.%d %d %s",
+                                                 this->majorVersion, this->minorVersion, (int)this->status, HttpStatusTool::getStatusString(this->status)));
         bytes.append(CRLF);
 
         // headers

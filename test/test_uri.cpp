@@ -15,4 +15,9 @@ int main()
     auto uriStr2 = "/foo/foo?query1=q1&query2=5";
     auto uri2 = server_template::util::Uri(uriStr2);
     ASSERT(uri2.query.size() == 2)
+
+    auto uriStr3 = "/?query1=q1";
+    auto uri3 = server_template::util::Uri(uriStr3);
+    ASSERT(uri3.query.size() == 1)
+    ASSERT(strcmp(uri3.path.c_str(), "") == 0)
 }

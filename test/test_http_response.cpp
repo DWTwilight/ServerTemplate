@@ -23,7 +23,8 @@ int main()
 {
     auto response = server_template::http::HttpResponse();
 
-    response.version = 1.1;
+    response.majorVersion = 1;
+    response.minorVersion = 1;
     response.status = server_template::http::HttpStatus::OK;
     response.headerMap["content-type"] = "text/plain";
     response.headerMap["host"] = "libuv";

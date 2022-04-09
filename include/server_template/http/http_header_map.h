@@ -20,7 +20,7 @@ public:
         return map[headerKey];
     }
 
-    void removeValue(const std::string& key)
+    void removeValue(const std::string &key)
     {
         std::string headerKey;
         util::StringUtil::toLower(key, headerKey);
@@ -30,7 +30,7 @@ public:
         }
     }
 
-    std::string getValueOrDefault(const std::string& key, const std::string& defaultValue)
+    std::string getValueOrDefault(const std::string &key, const std::string &defaultValue)
     {
         std::string headerKey;
         util::StringUtil::toLower(key, headerKey);
@@ -41,7 +41,14 @@ public:
         return map[headerKey];
     }
 
-    void toBytes(util::ByteArray& bytes) const
+    bool hasHeaderKey(const std::string &key) const
+    {
+        std::string headerKey;
+        util::StringUtil::toLower(key, headerKey);
+        return map.find(headerKey) != map.end();
+    }
+
+    void toBytes(util::ByteArray &bytes) const
     {
         for (auto pair : map)
         {

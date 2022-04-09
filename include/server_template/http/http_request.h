@@ -12,7 +12,8 @@ class HttpRequest
 public:
     HttpMethod method;
     util::Uri uri;
-    double version;
+    int majorVersion;
+    int minorVersion;
     HttpHeaderMap headerMap;
     util::ByteArray payload;
 };
