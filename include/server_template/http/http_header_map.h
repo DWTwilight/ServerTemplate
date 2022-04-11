@@ -34,7 +34,7 @@ public:
     {
         std::string headerKey;
         util::StringUtil::toLower(key, headerKey);
-        if (map.find(headerKey) != map.end())
+        if (map.find(headerKey) == map.end())
         {
             return defaultValue;
         }
@@ -55,6 +55,11 @@ public:
             bytes.append(util::StringUtil::format("%s: %s", pair.first.c_str(), pair.second.c_str()));
             bytes.append(CRLF);
         }
+    }
+
+    int count() const
+    {
+        return this->map.size();
     }
 
 private:

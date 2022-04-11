@@ -264,7 +264,7 @@ private:
                 {
                     // end of header fields
                     // get content-length
-                    this->contentLength = std::stoll(frame.headerMap[CONTENT_LENGTH_HEADER]);
+                    this->contentLength = std::stoull(frame.headerMap.getValueOrDefault(CONTENT_LENGTH_HEADER, "0"));
                     if (this->contentLength == 0)
                     {
                         // parse compelte
@@ -291,8 +291,8 @@ private:
                 if (frame.payload.size() == this->contentLength)
                 {
                     // parse complete
+                    return base::ParseResult::COMPLETE;
                 }
-                return base::ParseResult::COMPLETE;
                 break;
             default:
                 return base::ParseResult::PARSE_ERROR;

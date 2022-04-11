@@ -17,3 +17,7 @@ add_test(should_get_byte_array ../bin/test_byte_array)
 add_executable(test_uri test_uri.cpp)
 target_link_libraries(test_uri PRIVATE uv_a server_template)
 add_test(should_parse_uri ../bin/test_uri)
+
+add_executable(test_http_parser test_http_parser.cpp)
+target_link_libraries(test_http_parser PRIVATE uv_a server_template)
+add_test(should_parse_http_message ../bin/test_http_parser)
