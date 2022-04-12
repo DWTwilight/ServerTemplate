@@ -9,6 +9,18 @@ SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 class HttpResponse
 {
 public:
+    static void buildBadRequest(HttpResponse& response, const std::string& message, const std::string& contentType)
+    {
+        response.status = HttpStatus::BAD_REQUEST;
+        response.majorVersion = 1;
+        response.minorVersion = 1;
+        if (!message.empty())
+        {
+            response.payload = util::ByteArray(message);
+            response.headerMap[CONTENT_TYPE_HEADER] = contentType;
+        }
+    }
+
     HttpStatus status;
     int majorVersion;
     int minorVersion;

@@ -33,6 +33,11 @@ public:
         return this->result;
     }
 
+    void setMaxContentLength(uint64_t value)
+    {
+        this->maxContentLength = value;
+    }
+
 private:
     base::ParseResult consume(const char *begin, const char *end, size_t &nparsed)
     {

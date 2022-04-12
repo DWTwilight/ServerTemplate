@@ -16,6 +16,12 @@ public:
     int minorVersion;
     HttpHeaderMap headerMap;
     util::ByteArray payload;
+
+    bool isUpgrade()
+    {
+        auto conn = headerMap.getValueOrDefault(CONNECTION_HEADER, "");
+        return conn == UPGRADE_HEADER;
+    }
 };
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_END

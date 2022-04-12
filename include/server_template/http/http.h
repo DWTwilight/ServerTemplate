@@ -4,6 +4,7 @@
 #include "http_request_parser.h"
 #include "http_config.h"
 #include "../tcp/tcp_based_protocol.h"
+#include "http_response.h"
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 
@@ -23,36 +24,115 @@ public:
         }
     }
 
-    virtual void onTCPData(ssize_t nread, char *bytes) override 
+    virtual void onTCPData(ssize_t nread, char *bytes) override
     {
-
+        if (this->upgrade == NULL)
+        {
+            size_t nparsed;
+            auto res = parser.parse(bytes, bytes + nread, nparsed);
+            if (res == base::ParseResult::PARSE_ERROR)
+            {
+                // parse error, close connection
+                this->connHandler->closeConnection();
+                return;
+            }
+            if (res == base::ParseResult::COMPLETE)
+            {
+                onHttpMessage();
+                if (nparsed < nread)
+                {
+                    // bytes not read completely
+                    onTCPData(nread - nparsed, bytes + nparsed);
+                }
+            }
+        }
+        else
+        {
+            this->upgrade->onTCPData(nread, bytes);
+        }
     }
 
-    virtual void onTCPConnectionClose() override 
+    virtual void onTCPConnectionClose() override
     {
-
+        if (this->upgrade != NULL)
+        {
+            upgrade->onTCPConnectionClose();
+        }
     }
 
     virtual void useConfig(base::ConfigurationBase *config) override
     {
-        auto httpConfig = dynamic_cast<HttpConfig*>(config);
+        this->config = config;
+        auto httpConfig = dynamic_cast<HttpConfig *>(config);
         httpConfig->configHttp(this);
     }
 
     virtual void setMaxContentLength(uint64_t value) override
     {
         this->maxContentLength = value;
+        this->parser.setMaxContentLength(value);
     }
 
-    virtual void setUpgradeFactoryBuilder(const util::Builder<HttpUpgradeFactory>& factoryBuilder) override
+    virtual void setUpgradeFactoryBuilder(const util::Builder<HttpUpgradeFactory> &factoryBuilder) override
     {
         this->upgradeFactory = factoryBuilder.build();
     }
 
 private:
-    uint64_t maxContentLength;
-    HttpUpgradeFactory* upgradeFactory = NULL;
-    HttpUpgradeProtocol* upgrade = NULL;
+    void onHttpMessage()
+    {
+        auto req = parser.getFrame();
+
+        if (req->isUpgrade())
+        {
+            onUpgrade(req);
+        }
+        else
+        {
+            returnBadRequest();
+            this->connHandler->closeConnection();
+            return;
+        }
+
+        // reset parser
+        parser = HttpRequestParser(maxContentLength);
+    }
+
+    void onUpgrade(HttpRequest *req)
+    {
+        auto name = req->headerMap.getValueOrDefault(UPGRADE_HEADER, "");
+        this->upgrade = upgradeFactory->getProtocol(name, this->config, this->connHandler);
+        if (this->upgrade == NULL)
+        {
+            returnBadRequest("Upgrade not supported!", "text/plain");
+            this->connHandler->closeConnection();
+        }
+        else
+        {
+            this->upgrade->handleUpgrade(req);
+        }
+    }
+
+    void returnBadRequest(const std::string &message, const std::string &contentType)
+    {
+        HttpResponse response;
+        HttpResponse::buildBadRequest(response, message, contentType);
+        util::ByteArray bytes;
+        response.toBytes(bytes);
+
+        this->connHandler->writeBytes(bytes);
+    }
+
+    void returnBadRequest()
+    {
+        returnBadRequest("", "");
+    }
+
+    base::ConfigurationBase *config;
+    uint64_t maxContentLength = UINT64_MAX;
+    HttpUpgradeFactory *upgradeFactory = NULL;
+    HttpUpgradeProtocol *upgrade = NULL;
+    HttpRequestParser parser;
 };
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_END

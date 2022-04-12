@@ -9,6 +9,9 @@
 SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 
 #define CONTENT_LENGTH_HEADER "content-length"
+#define CONNECTION_HEADER "connection"
+#define UPGRADE_HEADER "Upgrade"
+#define CONTENT_TYPE_HEADER "content-type"
 
 class HttpHeaderMap
 {
