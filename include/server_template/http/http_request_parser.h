@@ -22,19 +22,19 @@ public:
 
     HttpRequestParser() {}
 
-    virtual base::ParseResult parse(HttpRequest &frame, const char *begin, const char *end, size_t &nparsed) override
+    virtual base::ParseResult parse(const char *begin, const char *end, size_t &nparsed) override
     {
         if (this->result == base::ParseResult::PARSE_ERROR)
         {
             return base::ParseResult::PARSE_ERROR;
         }
         nparsed = 0;
-        this->result = consume(frame, begin, end, nparsed);
+        this->result = consume(begin, end, nparsed);
         return this->result;
     }
 
 private:
-    base::ParseResult consume(HttpRequest &frame, const char *begin, const char *end, size_t &nparsed)
+    base::ParseResult consume(const char *begin, const char *end, size_t &nparsed)
     {
         while (begin != end)
         {

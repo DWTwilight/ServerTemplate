@@ -26,28 +26,28 @@ using Request = server_template::http::HttpRequest;
 int main()
 {
     HttpParser parser;
-    Request req;
+    Request* req = parser.getFrame();
     size_t nparsed;
 
-    auto status = parser.parse(req, HTTP_REQ_1, HTTP_REQ_1 + 97, nparsed);
+    auto status = parser.parse(HTTP_REQ_1, HTTP_REQ_1 + 97, nparsed);
     ASSERT(status == server_template::base::ParseResult::COMPLETE)
-    ASSERT(req.payload.empty())
-    ASSERT(req.headerMap.count() == 2)
+    ASSERT(req->payload.empty())
+    ASSERT(req->headerMap.count() == 2)
 
     parser = HttpParser();
-    req = Request();
-    status = parser.parse(req, HTTP_REQ_2, HTTP_REQ_2 + 123, nparsed);
+    req = parser.getFrame();
+    status = parser.parse(HTTP_REQ_2, HTTP_REQ_2 + 123, nparsed);
     ASSERT(status == server_template::base::ParseResult::COMPLETE)
-    ASSERT(checkBytes(req.payload.data(), (uint8_t*)"123\0z1", 5))
-    ASSERT(req.headerMap.count() == 3)
+    ASSERT(checkBytes(req->payload.data(), (uint8_t*)"123\0z1", 5))
+    ASSERT(req->headerMap.count() == 3)
     ASSERT(nparsed == 123 - 5)
 
     parser = HttpParser();
-    req = Request();
-    status = parser.parse(req, HTTP_REQ_3_1, HTTP_REQ_3_1 + 54, nparsed);
+    req = parser.getFrame();
+    status = parser.parse(HTTP_REQ_3_1, HTTP_REQ_3_1 + 54, nparsed);
     ASSERT(status == server_template::base::ParseResult::INCOMPLETE)
-    status = parser.parse(req, HTTP_REQ_3_2, HTTP_REQ_3_2 + 43, nparsed);
+    status = parser.parse(HTTP_REQ_3_2, HTTP_REQ_3_2 + 43, nparsed);
     ASSERT(status == server_template::base::ParseResult::COMPLETE)
-    ASSERT(req.payload.empty())
-    ASSERT(req.headerMap.count() == 2)
+    ASSERT(req->payload.empty())
+    ASSERT(req->headerMap.count() == 2)
 }

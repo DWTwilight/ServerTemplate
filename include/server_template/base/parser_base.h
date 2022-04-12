@@ -16,15 +16,21 @@ template <typename FrameType>
 class ParserTemplate
 {
 public:
-    virtual ParseResult parse(FrameType &frame, const char *begin, const char *end, size_t &nparsed) = 0;
+    virtual ParseResult parse(const char *begin, const char *end, size_t &nparsed) = 0;
 
     ParseResult getResult() const
     {
         return this->result;
     }
 
+    FrameType* getFrame()
+    {
+        return &frame;
+    }
+
 protected:
     ParseResult result;
+    FrameType frame;
 };
 
 SERVER_TEMPLATE_BASE_NAMESPACE_END
