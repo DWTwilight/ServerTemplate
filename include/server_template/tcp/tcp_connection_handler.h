@@ -98,6 +98,7 @@ public:
                     this->setClientIpAddress();
                     this->protocol = this->protocolFactory(this->config, this);
                     this->protocol->onTCPConnectionOpen();
+                    log("conn open");
                     uv_read_start((uv_stream_t *)tcpHandle, allocBuffer,
                                   [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
                                   {

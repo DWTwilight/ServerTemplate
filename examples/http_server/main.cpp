@@ -17,6 +17,7 @@ public:
 
 int main()
 {
+    server_template::logDebug = true;
     auto loop = uv_default_loop();
 
     server_template::tcp::TCPServerTemplate<server_template::http::Http> httpServer;

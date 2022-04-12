@@ -15,8 +15,8 @@
 
 SERVER_TEMPLATE_NAMESPACE_BEGIN
 
-// only to pass cmake on windows
-void func();
+extern bool logDebug;
+void log(const char* msg);
 
 SERVER_TEMPLATE_NAMESPACE_END
 

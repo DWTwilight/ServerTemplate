@@ -26,6 +26,7 @@ public:
 
     virtual void onTCPData(ssize_t nread, char *bytes) override
     {
+        log("on data");
         if (this->upgrade == NULL)
         {
             size_t nparsed;
@@ -38,7 +39,9 @@ public:
             }
             if (res == base::ParseResult::COMPLETE)
             {
+                log("on http");
                 onHttpMessage();
+                log("after http");
                 if (nparsed < nread)
                 {
                     // bytes not read completely
@@ -54,6 +57,7 @@ public:
 
     virtual void onTCPConnectionClose() override
     {
+        log("conn close");
         if (this->upgrade != NULL)
         {
             upgrade->onTCPConnectionClose();

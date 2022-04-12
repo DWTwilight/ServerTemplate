@@ -69,6 +69,7 @@ public:
 
     void onConnection()
     {
+        log("on connection");
         // Accept connection
         auto *client = new uv_tcp_t;
         auto r = uv_tcp_init(this->loop, client);
