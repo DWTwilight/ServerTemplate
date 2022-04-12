@@ -11,7 +11,7 @@ SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 class HttpUpgradeFactory
 {
 public:
-    HttpUpgradeFactory(const std::map<std::string, HttpUpgradeProtocol::ProtocolFactory> &factoryMap)
+    HttpUpgradeFactory(const std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> &factoryMap)
     {
         this->factoryMap = factoryMap;
     }
@@ -36,7 +36,7 @@ public:
     }
 
 private:
-    std::map<std::string, HttpUpgradeProtocol::ProtocolFactory> factoryMap;
+    std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> factoryMap;
     std::vector<HttpUpgradeProtocol *> instances;
 };
 
@@ -61,7 +61,7 @@ public:
     }
 
 private:
-    std::map<std::string, HttpUpgradeProtocol::ProtocolFactory> factoryMap;
+    std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> factoryMap;
 };
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_END

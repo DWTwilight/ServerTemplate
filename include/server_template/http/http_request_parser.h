@@ -169,7 +169,7 @@ private:
                 }
                 break;
             case ParseState::NEW_LINE_CR:
-                if (input == CR)
+                if (input == '\r')
                 {
                     this->state = ParseState::NEW_LINE_CRLF;
                 }
@@ -179,7 +179,7 @@ private:
                 }
                 break;
             case ParseState::NEW_LINE_CRLF:
-                if (input == LF)
+                if (input == '\n')
                 {
                     this->state = ParseState::HEADER_KEY;
                 }
@@ -211,7 +211,7 @@ private:
                 {
                     buffer.push_back(input);
                 }
-                else if (input == CR && this->buffer.empty())
+                else if (input == '\r' && this->buffer.empty())
                 {
                     this->state = ParseState::NEW_LINE_CRLF_END;
                 }
@@ -228,7 +228,7 @@ private:
                         buffer.push_back(input);
                     }
                 }
-                else if (input == CR)
+                else if (input == '\r')
                 {
                     this->state = ParseState::NEW_LINE_LF;
                 }
@@ -238,7 +238,7 @@ private:
                 }
                 break;
             case ParseState::NEW_LINE_LF:
-                if (input == LF)
+                if (input == '\n')
                 {
                     // end of header line
                     if (this->currentHeaderKey.empty())
@@ -259,13 +259,13 @@ private:
                 }
                 else
                 {
-                    buffer.push_back(CR);
+                    buffer.push_back('\r');
                     buffer.push_back(input);
                     this->state = ParseState::HEADER_VALUE;
                 }
                 break;
             case ParseState::NEW_LINE_CRLF_END:
-                if (input == LF)
+                if (input == '\n')
                 {
                     // end of header fields
                     // get content-length

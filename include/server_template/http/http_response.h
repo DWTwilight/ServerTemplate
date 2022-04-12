@@ -14,6 +14,7 @@ public:
         response.status = HttpStatus::BAD_REQUEST;
         response.majorVersion = 1;
         response.minorVersion = 1;
+        response.headerMap[CONNECTION_HEADER] = "close";
         if (!message.empty())
         {
             response.payload = util::ByteArray(message);
@@ -30,9 +31,8 @@ public:
     void toBytes(util::ByteArray& bytes)
     {
         // initial line
-        bytes.append(util::StringUtil::format("HTTP/%d.%d %d %s",
+        bytes.append(util::StringUtil::format("HTTP/%d.%d %d %s\r\n",
                                                  this->majorVersion, this->minorVersion, (int)this->status, HttpStatusTool::getStatusString(this->status)));
-        bytes.append(CRLF);
 
         // headers
         if (payload.size() > 0)
@@ -44,7 +44,7 @@ public:
             headerMap.removeValue(CONTENT_LENGTH_HEADER);
         }
         headerMap.toBytes(bytes);
-        bytes.append(CRLF);
+        bytes.append("\r\n");
 
         // payload
         bytes.append(payload);

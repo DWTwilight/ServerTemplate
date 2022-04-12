@@ -56,7 +56,7 @@ public:
         for (auto pair : map)
         {
             bytes.append(util::StringUtil::format("%s: %s", pair.first.c_str(), pair.second.c_str()));
-            bytes.append(CRLF);
+            bytes.append("\r\n");
         }
     }
 

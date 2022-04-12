@@ -3,14 +3,13 @@
 
 #include "http_request.h"
 #include "../tcp/tcp_based_protocol.h"
-#include <functional>
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 
 class HttpUpgradeProtocol : public tcp::TCPBasedProtocol
 {
 public:
-    using ProtocolFactory = std::function<HttpUpgradeProtocol *(base::ConfigurationBase *, tcp::ConnectionHandlerBase *)>;
+    using UpgradeProtocolFactory = std::function<HttpUpgradeProtocol *(base::ConfigurationBase *, tcp::ConnectionHandlerBase *)>;
 
     virtual void handleUpgrade(HttpRequest *req) = 0;
 };

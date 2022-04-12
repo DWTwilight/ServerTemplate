@@ -89,7 +89,7 @@ private:
         }
         else
         {
-            returnBadRequest();
+            returnBadRequest("Bad Request", "text/plain");
             this->connHandler->closeConnection();
             return;
         }
@@ -120,12 +120,7 @@ private:
         util::ByteArray bytes;
         response.toBytes(bytes);
 
-        this->connHandler->writeBytes(bytes);
-    }
-
-    void returnBadRequest()
-    {
-        returnBadRequest("", "");
+        this->connHandler->writeBytes((char *)bytes.data(), bytes.size());
     }
 
     base::ConfigurationBase *config;
