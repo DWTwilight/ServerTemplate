@@ -18,6 +18,11 @@ class HttpConfig
 {
 public:
     virtual void configHttp(HttpConfigurations *protocol) = 0;
+
+    virtual void configUpgradeFactoryBuilder(HttpUpgradeFactoryBuilder& builder) = 0;
+
+protected:
+    HttpUpgradeFactoryBuilder upgradeFactoryBuilder;
 };
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_END

@@ -124,7 +124,7 @@ private:
         util::ByteArray bytes;
         response.toBytes(bytes);
 
-        this->connHandler->writeBytes((char *)bytes.data(), bytes.size());
+        this->connHandler->writeBytes(bytes);
     }
 
     base::ConfigurationBase *config;

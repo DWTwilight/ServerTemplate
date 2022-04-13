@@ -11,7 +11,7 @@ SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 class HttpUpgradeFactory
 {
 public:
-    HttpUpgradeFactory(const std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> &factoryMap)
+    HttpUpgradeFactory(const std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> *factoryMap)
     {
         this->factoryMap = factoryMap;
     }
@@ -26,17 +26,17 @@ public:
 
     HttpUpgradeProtocol *getProtocol(const std::string &name, base::ConfigurationBase *config, tcp::ConnectionHandlerBase *connHandler)
     {
-        if (this->factoryMap.find(name) == this->factoryMap.end())
+        if (this->factoryMap->find(name) == this->factoryMap->end())
         {
             return NULL;
         }
-        auto instance = this->factoryMap[name](config, connHandler);
+        auto instance = this->factoryMap->at(name)(config, connHandler);
         this->instances.push_back(instance);
         return instance;
     }
 
 private:
-    std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> factoryMap;
+    const std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> *factoryMap;
     std::vector<HttpUpgradeProtocol *> instances;
 };
 
@@ -45,7 +45,7 @@ class HttpUpgradeFactoryBuilder : public util::Builder<HttpUpgradeFactory>
 public:
     virtual HttpUpgradeFactory *build() const override
     {
-        return new HttpUpgradeFactory(this->factoryMap);
+        return new HttpUpgradeFactory(&factoryMap);
     }
 
     template <typename Upgrade>
