@@ -25,3 +25,7 @@ add_test(should_parse_http_message ../bin/test_http_parser)
 add_executable(test_base64 test_base64.cpp)
 target_link_libraries(test_base64 PRIVATE uv_a server_template)
 add_test(should_encode_base64 ../bin/test_base64)
+
+add_executable(test_byte_converter test_byte_converter.cpp)
+target_link_libraries(test_byte_converter PRIVATE uv_a server_template)
+add_test(should_convert_to_bytes ../bin/test_byte_converter)

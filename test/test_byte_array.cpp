@@ -40,6 +40,4 @@ int main()
     array2.push_back('a');
     array2.append(array1);
     ASSERT(checkBytes(array2.data(), (uint8_t*)BYTES_5, 55))
-
-    return 0;
 }
