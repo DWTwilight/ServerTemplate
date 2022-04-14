@@ -20,33 +20,65 @@ public:
         this->reserve(size);
     }
 
-    ByteArray(const char* bytes, size_t length)
+    ByteArray(const char *bytes, size_t length)
     {
         this->resize(length);
         std::copy(bytes, bytes + length, this->begin());
     }
 
-    ByteArray(const std::string& bytes)
+    ByteArray(const std::string &bytes)
     {
         this->resize(bytes.length());
         std::copy(bytes.begin(), bytes.end(), this->begin());
     }
 
-    void append(const std::string& bytes)
+    void append(const std::string &bytes)
     {
         this->reserve(this->size() + bytes.length());
         this->insert(this->end(), bytes.begin(), bytes.end());
     }
 
-    void append(const char* bytes, size_t length)
+    void append(const char *bytes, size_t length)
     {
         this->reserve(this->size() + length);
         this->insert(this->end(), bytes, bytes + length);
     }
 
-    void append(const ByteArray& bytes)
+    void append(const ByteArray &bytes)
     {
-        this->append((const char*)bytes.data(), bytes.size());
+        this->append((const char *)bytes.data(), bytes.size());
+    }
+
+    bool equals(const ByteArray &other)
+    {
+        if (other.size() != this->size())
+        {
+            return false;
+        }
+        for (int i = 0; i < this->size(); i++)
+        {
+            if (this->at(i) != other[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool equals(const std::string &other)
+    {
+        if (other.size() != this->size())
+        {
+            return false;
+        }
+        for (int i = 0; i < this->size(); i++)
+        {
+            if (this->at(i) != (uint8_t)other[i])
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
 

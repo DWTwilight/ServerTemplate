@@ -1,111 +1,129 @@
 #ifndef SERVER_TEMPLATE_UTIL_BASE64_H_
 #define SERVER_TEMPLATE_UTIL_BASE64_H_
 
-#include <string>
-#include <iostream>
+#include "string_util.h"
+#include "byte_array.h"
 #include "util_ns.h"
 
 SERVER_TEMPLATE_UTIL_NAMESPACE_BEGIN
 
-const std::string BASE64_TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const std::string BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 class Base64
 {
 public:
-    static bool isBase64(unsigned char c)
+    static bool decode(const std::string &input, ByteArray &output)
     {
-        return (isalnum(c) || (c == '+') || (c == '/'));
+        if (input.empty())
+        {
+            output = ByteArray();
+            return true;
+        }
+        int length = input.length();
+        if (length % 4 != 0)
+        {
+            return false;
+        }
+        output = ByteArray(getDecodeLength(input));
+        auto cap = output.capacity();
+        int index = 0;
+        while (index < input.length())
+        {
+            uint8_t bytes[4];
+            for (int i = 0; i < 4; i++)
+            {
+                bytes[i] = getByte(input[index++]);
+                if (bytes[i] == UINT8_MAX)
+                {
+                    return false;
+                }
+            }
+            output.push_back((bytes[0] << 2) | (bytes[1] >> 4));
+            if (output.size() == cap)
+            {
+                return true;
+            }
+            output.push_back((bytes[1] << 4) | (bytes[2]) >> 2);
+            if (output.size() == cap)
+            {
+                return true;
+            }
+            output.push_back((bytes[2] << 6) | bytes[3]);
+        }
+        return true;
     }
 
-    static std::string base64Encode(unsigned char const *bytesToEncode, unsigned int length)
+    static void encode(const ByteArray &input, std::string &output)
     {
-        std::string ret;
-        int i = 0;
-        int j = 0;
-        unsigned char char_array_3[3];
-        unsigned char char_array_4[4];
-
-        while (length--)
+        output = std::string();
+        if (input.empty())
         {
-            char_array_3[i++] = *(bytesToEncode++);
-            if (i == 3)
+            return;
+        }
+        output.reserve(getEncodeLength(input));
+
+        int length = input.size();
+        int index = 0;
+        while (index < length)
+        {
+            int eqCount = 2;
+            uint8_t byte0 = input[index++], byte1 = 0, byte2 = 0;
+            if (index < length)
             {
-                char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-                char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-                char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-                char_array_4[3] = char_array_3[2] & 0x3f;
-
-                for (i = 0; (i < 4); i++)
-                    ret += BASE64_TABLE[char_array_4[i]];
-                i = 0;
+                byte1 = input[index++];
+                eqCount--;
             }
+            if (index < length)
+            {
+                byte2 = input[index++];
+                eqCount--;
+            }
+
+            output.push_back(BASE64_ALPHABET[byte0 >> 2]);
+            output.push_back(BASE64_ALPHABET[((byte0 & 0x03) << 4) | (byte1 >> 4)]);
+            output.push_back(eqCount-- > 0 ? '=' : BASE64_ALPHABET[((byte1 & 0x0f) << 2) | (byte2 >> 6)]);
+            output.push_back(eqCount-- > 0 ? '=' : BASE64_ALPHABET[byte2 & 0x3f]);
         }
-
-        if (i)
-        {
-            for (j = i; j < 3; j++)
-                char_array_3[j] = '\0';
-
-            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-            char_array_4[3] = char_array_3[2] & 0x3f;
-
-            for (j = 0; (j < i + 1); j++)
-                ret += BASE64_TABLE[char_array_4[j]];
-
-            while ((i++ < 3))
-                ret += '=';
-        }
-
-        return ret;
     }
 
-    static std::string base64Decode(std::string const &encodedStr)
+private:
+    static size_t getDecodeLength(const std::string &input)
     {
-        int in_len = int(encodedStr.size());
-        int i = 0;
-        int j = 0;
-        int in_ = 0;
-        unsigned char char_array_4[4], char_array_3[3];
-        std::string ret;
+        return input.length() / 4 * 3 - (input.length() - input.find_last_not_of('=') - 1);
+    }
 
-        while (in_len-- && (encodedStr[in_] != '=') && isBase64(encodedStr[in_]))
+    static size_t getEncodeLength(const ByteArray &input)
+    {
+        return (input.size() / 3 + 1) * 4;
+    }
+
+    static uint8_t getByte(char base64Char)
+    {
+        if (StringUtil::isUpper(base64Char))
         {
-            char_array_4[i++] = encodedStr[in_];
-            in_++;
-            if (i == 4)
-            {
-                for (i = 0; i < 4; i++)
-                    char_array_4[i] = (unsigned char)BASE64_TABLE.find(char_array_4[i]);
-
-                char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-                char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-                char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-
-                for (i = 0; (i < 3); i++)
-                    ret += char_array_3[i];
-                i = 0;
-            }
+            return base64Char - 'A';
         }
-
-        if (i)
+        if (StringUtil::isLower(base64Char))
         {
-            for (j = i; j < 4; j++)
-                char_array_4[j] = 0;
-
-            for (j = 0; j < 4; j++)
-                char_array_4[j] = (unsigned char)BASE64_TABLE.find(char_array_4[j]);
-
-            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-
-            for (j = 0; (j < i - 1); j++)
-                ret += char_array_3[j];
+            return base64Char - 71;
         }
-
-        return ret;
+        if (StringUtil::isNumber(base64Char))
+        {
+            return base64Char + 4;
+        }
+        if (base64Char == '+')
+        {
+            return 62;
+        }
+        if (base64Char == '/')
+        {
+            return 63;
+        }
+        if (base64Char == '=')
+        {
+            return 0;
+        }
+        return UINT8_MAX;
     }
 };
 

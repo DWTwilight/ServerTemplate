@@ -21,3 +21,7 @@ add_test(should_parse_uri ../bin/test_uri)
 add_executable(test_http_parser test_http_parser.cpp)
 target_link_libraries(test_http_parser PRIVATE uv_a server_template)
 add_test(should_parse_http_message ../bin/test_http_parser)
+
+add_executable(test_base64 test_base64.cpp)
+target_link_libraries(test_base64 PRIVATE uv_a server_template)
+add_test(should_encode_base64 ../bin/test_base64)

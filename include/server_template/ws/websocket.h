@@ -24,6 +24,12 @@ public:
     virtual void useConfig(base::ConfigurationBase *config) override
     {
     }
+
+private:
+    void startHandshake(http::HttpRequest *req)
+    {
+        
+    }
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END
