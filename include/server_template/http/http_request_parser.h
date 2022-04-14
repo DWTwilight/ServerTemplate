@@ -191,6 +191,11 @@ private:
             case ParseState::HEADER_KEY:
                 if (util::StringUtil::isLWSP(input))
                 {
+                    if (!this->buffer.empty())
+                    {
+                        return base::ParseResult::PARSE_ERROR;
+                    }
+                    continueHeader = true;
                     this->state = ParseState::HEADER_VALUE;
                 }
                 else if (input == ':')
@@ -247,7 +252,16 @@ private:
                     }
                     if (frame.headerMap.hasHeaderKey(currentHeaderKey))
                     {
+                        if (continueHeader)
+                        {
+                            frame.headerMap[currentHeaderKey].push_back(' ');
+                        }
+                        else
+                        {
+                            frame.headerMap[currentHeaderKey].append(", ");
+                        }
                         frame.headerMap[currentHeaderKey].append(buffer);
+                        continueHeader = false;
                     }
                     else
                     {
@@ -361,6 +375,7 @@ private:
         PAYLOAD
     };
 
+    bool continueHeader = false;
     uint64_t maxContentLength = UINT64_MAX;
     uint64_t contentLength;
     ParseState state = ParseState::METHOD;

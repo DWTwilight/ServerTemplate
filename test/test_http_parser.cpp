@@ -19,6 +19,7 @@ const auto HTTP_REQ_1 = "GET /path/to/file/index.html HTTP/1.0\r\nFrom: someuser
 const auto HTTP_REQ_2 = "POST /path/to/file/upload HTTP/1.0\r\nFrom: someuser@jmarshall.com\r\nUser-Agent: HTTPTool/1.0\r\nContent-Length: 5\r\n\r\n123\0z12345";
 const auto HTTP_REQ_3_1 = "GET /path/to/file/index.html HTTP/1.0\r\nFrom: someuser@";
 const auto HTTP_REQ_3_2 = "jmarshall.com\r\nUser-Agent: HTTPTool/1.0\r\n\r\n";
+const auto HTTP_REQ_4 = "GET /path/to/file/index.html HTTP/1.0\r\nTo: someuser@jmarshall.com\r\nTo: someuser2@jmarshall.com\r\nMessage: hello\r\n \t world\r\nUser-Agent: HTTPTool/1.0\r\n\r\n";
 
 using HttpParser = server_template::http::HttpRequestParser;
 using Request = server_template::http::HttpRequest;
@@ -50,4 +51,11 @@ int main()
     ASSERT(status == server_template::base::ParseResult::COMPLETE)
     ASSERT(req->payload.empty())
     ASSERT(req->headerMap.count() == 2)
+
+    parser = HttpParser();
+    req = parser.getFrame();
+    status = parser.parse(HTTP_REQ_4, HTTP_REQ_4 + 150, nparsed);
+    ASSERT(status == server_template::base::ParseResult::COMPLETE)
+    ASSERT(req->headerMap["To"] == "someuser@jmarshall.com, someuser2@jmarshall.com")
+    ASSERT(req->headerMap["Message"] == "hello world")
 }
