@@ -7,6 +7,10 @@ SERVER_TEMPLATE_UTIL_NAMESPACE_BEGIN
 
 #define IS_LITTLE_ENDIAN char (0x0001)
 
+/**
+ * @brief convert to bytes in BIG_ENDIAN style
+ * 
+ */
 class ByteConverter
 {
 public:
@@ -50,6 +54,40 @@ public:
         }
         data = *((T*)(bytes));
         return true;
+    }
+
+    template <typename T>
+    static void arrayToBytes(const std::vector<T>& data, ByteArray& bytes)
+    {
+        bytes = ByteArray(data.size() * sizeof(T));
+        for (const T& d : data)
+        {
+            bytes.append((char*)&d, sizeof(T), IS_LITTLE_ENDIAN);
+        }
+    }
+
+    template <typename T>
+    static bool arrayFromBytes(const uint8_t* bytes, size_t count, std::vector<T>& data)
+    {
+        if (count % sizeof(T) != 0)
+        {
+            return false;
+        }
+        data.swap(std::vector<T>());
+        data.reserve(count / sizeof(T));
+        for (size_t i = 0; i < count; i += sizeof(T))
+        {
+            T d;
+            fromBytes(bytes + i, d);
+            data.push_back(d);
+        }
+        return true;
+    }
+
+    template <typename T>
+    static bool arrayFromBytes(ByteArray& bytes, std::vector<T>& data)
+    {
+        return arrayFromBytes(bytes.data(), bytes.size(), data);
     }
 };
 

@@ -30,7 +30,7 @@ public:
         else
         {
             this->reserve(length);
-            for (int i = 1; i <= length; i++)
+            for (size_t i = 1; i <= length; i++)
             {
                 this->push_back(bytes[length - i]);
             }
@@ -49,10 +49,20 @@ public:
         this->insert(this->end(), bytes.begin(), bytes.end());
     }
 
-    void append(const char *bytes, size_t length)
+    void append(const char *bytes, size_t length, bool reverse = false)
     {
         this->reserve(this->size() + length);
-        this->insert(this->end(), bytes, bytes + length);
+        if (reverse)
+        {
+            for (size_t i = 1; i <= length; i++)
+            {
+                this->push_back(bytes[length - i]);
+            }
+        }
+        else
+        {
+            this->insert(this->end(), bytes, bytes + length);
+        }
     }
 
     void append(const ByteArray &bytes)
