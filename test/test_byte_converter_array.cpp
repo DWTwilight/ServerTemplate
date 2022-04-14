@@ -16,4 +16,11 @@ int main()
     std::vector<int32_t> res;
     ByteConverter::arrayFromBytes(bytes, res);
     ASSERT(res[1] == intArray[1])
+
+    ByteConverter::arrayToBytes(intArray.data(), 3, bytes);
+    ASSERT(bytes.equals((uint8_t*)"\0\0\0\001\0\0\0\002\0\0\0\003"))
+
+    int32_t res2[3];
+    ByteConverter::arrayFromBytes(bytes, res2);
+    ASSERT(res2[1] == intArray[1])
 }

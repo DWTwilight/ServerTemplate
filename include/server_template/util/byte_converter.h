@@ -59,10 +59,16 @@ public:
     template <typename T>
     static void arrayToBytes(const std::vector<T>& data, ByteArray& bytes)
     {
-        bytes = ByteArray(data.size() * sizeof(T));
-        for (const T& d : data)
+        arrayToBytes(data.data(), data.size(), bytes);
+    }
+
+    template <typename T>
+    static void arrayToBytes(const T* data, size_t count, ByteArray& bytes)
+    {
+        bytes = ByteArray(count * sizeof(T));
+        for (int i = 0; i < count; i++)
         {
-            bytes.append((char*)&d, sizeof(T), IS_LITTLE_ENDIAN);
+            bytes.append((char*)(data + i), sizeof(T), IS_LITTLE_ENDIAN);
         }
     }
 
@@ -85,7 +91,27 @@ public:
     }
 
     template <typename T>
+    static bool arrayFromBytes(const uint8_t* bytes, size_t count, T* data)
+    {
+        if (count % sizeof(T) != 0)
+        {
+            return false;
+        }
+        for (size_t i = 0; i < count; i += sizeof(T))
+        {
+            fromBytes(bytes + i, data[i / sizeof(T)]);
+        }
+        return true;
+    }
+
+    template <typename T>
     static bool arrayFromBytes(ByteArray& bytes, std::vector<T>& data)
+    {
+        return arrayFromBytes(bytes.data(), bytes.size(), data);
+    }
+
+    template <typename T>
+    static bool arrayFromBytes(ByteArray& bytes, T* data)
     {
         return arrayFromBytes(bytes.data(), bytes.size(), data);
     }

@@ -31,8 +31,8 @@ class SHA1
 public:
     static void computeHash(const ByteArray &input, ByteArray &output)
     {
+        // copy data
         auto data = input;
-        output = ByteArray(20);
         // fill data
         auto fillCount = getFillCount(input.size());
         if (fillCount > 0)
@@ -45,7 +45,7 @@ public:
         }
         // append length
         ByteArray lengthBytes;
-        ByteConverter::toBytes(input.size(), lengthBytes);
+        ByteConverter::toBytes(((uint64_t)input.size()) * 8, lengthBytes);
         data.append(lengthBytes);
 
         uint32_t buffer_h[5] = {0x67452301u, 0xEFCDAB89u, 0x98BADCFEu, 0x10325476u, 0xC3D2E1F0u};
@@ -56,7 +56,35 @@ public:
             std::copy(buffer_h, buffer_h + 5, buffer_abcde);
             uint32_t buffer_w[80];
             uint32_t temp;
+
+            // assign w0 ... w15
+            ByteConverter::arrayFromBytes(data.data() + 64 * i, 64, buffer_w);
+            // cal w16 ... w79
+            for (int j = 16; j < 80; j++)
+            {
+                buffer_w[j] = circularLeftShift(buffer_w[j - 3] ^ buffer_w[j - 8] ^ buffer_w[j - 14] ^ buffer_w[j - 16], 1);
+            }
+
+            for (int j = 0; j < 80; j++)
+            {
+                temp = circularLeftShift(buffer_abcde[0], 5) +
+                       func(buffer_abcde[1], buffer_abcde[2], buffer_abcde[3], j) +
+                       buffer_abcde[4] +
+                       buffer_w[j] +
+                       k(j);
+                buffer_abcde[4] = buffer_abcde[3];
+                buffer_abcde[3] = buffer_abcde[2];
+                buffer_abcde[2] = circularLeftShift(buffer_abcde[1], 30);
+                buffer_abcde[1] = buffer_abcde[0];
+                buffer_abcde[0] = temp;
+            }
+            
+            for (int j = 0; j < 5; j++)
+            {
+                buffer_h[j] += buffer_abcde[j];
+            }
         }
+        ByteConverter::arrayToBytes(buffer_h, 5, output);
     }
 
 private:
@@ -75,7 +103,7 @@ private:
         return SHA_1_FUNC[t / 20](x, y, z);
     }
 
-    static uint32_t circularShift(const uint32_t &x, int n)
+    static uint32_t circularLeftShift(const uint32_t &x, int n)
     {
         return (x << n) | (x >> (32 - n));
     }

@@ -7,6 +7,15 @@
 
 SERVER_TEMPLATE_UTIL_NAMESPACE_BEGIN
 
+const std::string HEX_TABLE = "0123456789ABCDEF";
+const std::string HEX_LOWER_TABLE = "0123456789abcdef";
+
+enum class ByteFormat
+{
+    HEX,
+    HEX_LOWER
+};
+
 class ByteArray : public std::vector<uint8_t>
 {
 public:
@@ -118,6 +127,33 @@ public:
             }
         }
         return true;
+    }
+
+    void toString(std::string &output, ByteFormat format = ByteFormat::HEX)
+    {
+        output = std::string();
+        switch (format)
+        {
+        case ByteFormat::HEX:
+
+            output.reserve(this->size() * 2);
+            for (size_t i = 0; i < this->size(); i++)
+            {
+                auto byte = this->at(i);
+                output.push_back(HEX_TABLE[byte >> 4]);
+                output.push_back(HEX_TABLE[byte & 0x0f]);
+            }
+            break;
+        case ByteFormat::HEX_LOWER:
+            output.reserve(this->size() * 2);
+            for (size_t i = 0; i < this->size(); i++)
+            {
+                auto byte = this->at(i);
+                output.push_back(HEX_LOWER_TABLE[byte >> 4]);
+                output.push_back(HEX_LOWER_TABLE[byte & 0x0f]);
+            }
+            break;
+        }
     }
 };
 
