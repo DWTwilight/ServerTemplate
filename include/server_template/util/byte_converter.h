@@ -8,8 +8,9 @@ SERVER_TEMPLATE_UTIL_NAMESPACE_BEGIN
 #define IS_LITTLE_ENDIAN char (0x0001)
 
 /**
- * @brief convert to bytes in BIG_ENDIAN style
- * 
+ * @brief convert to bytes to/from BIG_ENDIAN style; 
+ * only for primitive types;
+ * struct is NOT supported
  */
 class ByteConverter
 {

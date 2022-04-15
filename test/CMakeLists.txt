@@ -37,3 +37,7 @@ add_test(should_convert_array ../bin/test_byte_converter_array)
 add_executable(test_sha_1 test_sha_1.cpp)
 target_link_libraries(test_sha_1 PRIVATE uv_a server_template)
 add_test(should_gen_sha_1_hash ../bin/test_sha_1)
+
+add_executable(test_ws_frame_parser test_ws_frame_parser.cpp)
+target_link_libraries(test_ws_frame_parser PRIVATE uv_a server_template)
+add_test(should_parse_ws_frame ../bin/test_ws_frame_parser)

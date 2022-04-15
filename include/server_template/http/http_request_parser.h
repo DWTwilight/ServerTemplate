@@ -15,7 +15,7 @@ SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 class HttpRequestParser : public base::ParserTemplate<HttpRequest>
 {
 public:
-    HttpRequestParser(uint64_t maxContentLength)
+    HttpRequestParser(size_t maxContentLength)
     {
         this->maxContentLength = maxContentLength;
     }
@@ -33,7 +33,7 @@ public:
         return this->result;
     }
 
-    void setMaxContentLength(uint64_t value)
+    void setMaxContentLength(size_t value)
     {
         this->maxContentLength = value;
     }
@@ -283,19 +283,20 @@ private:
                 {
                     // end of header fields
                     // get content-length
-                    this->contentLength = std::stoull(frame.headerMap.getValueOrDefault(CONTENT_LENGTH_HEADER, "0"));
-                    if (this->contentLength == 0)
+                    uint64_t length = std::stoull(frame.headerMap.getValueOrDefault(CONTENT_LENGTH_HEADER, "0"));
+                    if (length == 0)
                     {
                         // parse compelte
                         return base::ParseResult::COMPLETE;
                     }
-                    else if (this->maxContentLength < this->contentLength)
+                    else if (this->maxContentLength < length)
                     {
                         // message is too large, abort
                         return base::ParseResult::PARSE_ERROR;
                     }
                     else
                     {
+                        this->contentLength = length;
                         frame.payload.reserve(this->contentLength);
                         this->state = ParseState::PAYLOAD;
                     }
@@ -376,8 +377,8 @@ private:
     };
 
     bool continueHeader = false;
-    uint64_t maxContentLength = UINT64_MAX;
-    uint64_t contentLength;
+    size_t maxContentLength = UINT32_MAX;
+    size_t contentLength = 0;
     ParseState state = ParseState::METHOD;
     std::string buffer; // not for payload
     std::string currentHeaderKey;
