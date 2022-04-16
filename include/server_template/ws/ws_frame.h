@@ -19,7 +19,9 @@ enum class WebsocketOpcode : uint8_t
 struct WebsocketFrameHeader
 {
     WebsocketOpcode opcode : 4;
-    uint8_t rsv : 3;
+    bool rsv3 : 1;
+    bool rsv2 : 1;
+    bool rsv1 : 1;
     bool fin : 1;
 
     uint8_t payloadLength : 7;

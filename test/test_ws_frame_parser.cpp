@@ -11,6 +11,7 @@ const uint8_t bytes1[] = {0x81, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f};
 const uint8_t bytes2[] = {0x81, 0x85, 0x37, 0xfa, 0x21, 0x3d, 0x7f, 0x9f, 0x4d, 0x51, 0x58};
 const uint8_t bytes3[] = {0x82, 0x7E, 0x01, 0x00};
 const uint8_t bytes4[] = {0x82, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+const uint8_t bytes5[] = {0xC1, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f};
 
 int main()
 {
@@ -57,4 +58,16 @@ int main()
     ASSERT(!frame->header.mask)
     ASSERT(frame->header.opcode == WebsocketOpcode::BINARY_FRAME)
     ASSERT(frame->getPayloadLength() == 65536)
+
+    // bytes5, "Hello", no mask, with RSV1 on
+    parser = WebsocketFrameParser();
+    frame = parser.getFrame();
+    res = parser.parse((char *)bytes5, (char *)bytes5 + 7, nparsed);
+    ASSERT(res == server_template::base::ParseResult::COMPLETE)
+    ASSERT(frame->header.fin)
+    ASSERT(!frame->header.mask)
+    ASSERT(frame->header.opcode == WebsocketOpcode::TEXT_FRAME)
+    ASSERT(frame->getPayloadLength() == 5)
+    ASSERT(frame->payload.equals("Hello"))
+    ASSERT(frame->header.rsv1)
 }
