@@ -39,6 +39,11 @@ public:
     {
         return payload.empty() ? payload.capacity() : payload.size();
     }
+
+    bool isControlFrame() const
+    {
+        return header.opcode == WebsocketOpcode::CONNECTION_CLOSE || header.opcode == WebsocketOpcode::PING || header.opcode == WebsocketOpcode::PONG;
+    }
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END

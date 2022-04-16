@@ -9,7 +9,7 @@ SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 class HttpConfigurations
 {
 public:
-    virtual void setMaxContentLength(uint64_t value) = 0;
+    virtual void setMaxContentLength(size_t value) = 0;
 };
 
 class HttpConfig

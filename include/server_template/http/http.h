@@ -72,7 +72,7 @@ public:
         this->upgradeFactory = httpConfig->getHttpUpgradeFactoryBuilder().build();
     }
 
-    virtual void setMaxContentLength(uint64_t value) override
+    virtual void setMaxContentLength(size_t value) override
     {
         this->maxContentLength = value;
         this->parser.setMaxContentLength(value);
@@ -124,7 +124,7 @@ private:
     }
 
     base::ConfigurationBase *config;
-    uint64_t maxContentLength = UINT64_MAX;
+    size_t maxContentLength = UINT32_MAX;
     HttpUpgradeFactory *upgradeFactory = NULL;
     HttpUpgradeProtocol *upgrade = NULL;
     HttpRequestParser parser;

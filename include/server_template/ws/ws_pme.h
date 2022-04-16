@@ -1,14 +1,14 @@
-#ifndef SERVER_TEMPLATE_WS_PMCE_H_
-#define SERVER_TEMPLATE_WS_PMCE_H_
+#ifndef SERVER_TEMPLATE_WS_WS_PME_H_
+#define SERVER_TEMPLATE_WS_WS_PME_H_
 
 #include "ws_extension.h"
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
-class PerMessageExtension : public WebsocketExtension
+class WebsocketPerMessageExtension : public WebsocketExtension
 {
 public:
-    PerMessageExtension(int rsvIndex, const std::string &name, const std::string &paramName)
+    WebsocketPerMessageExtension(int rsvIndex, const std::string &name, const std::string &paramName)
         : WebsocketExtension(rsvIndex, name, paramName, WebsocketExtension::Type::PER_MESSAGE) {}
 
     /**
@@ -28,13 +28,13 @@ public:
     virtual void encodeMessage(WebsocketMessage &message) = 0;
 };
 
-class PerMessageCompressionExtension : public PerMessageExtension
+class PerMessageCompressionExtension : public WebsocketPerMessageExtension
 {
 public:
     PerMessageCompressionExtension(const std::string &name, const std::string &paramName)
-        : PerMessageExtension(0, name, paramName) {}
+        : WebsocketPerMessageExtension(0, name, paramName) {}
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END
 
-#endif // !SERVER_TEMPLATE_WS_PMCE_H_
+#endif // !SERVER_TEMPLATE_WS_WS_PME_H_
