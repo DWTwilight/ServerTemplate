@@ -10,8 +10,6 @@ class HttpConfigurations
 {
 public:
     virtual void setMaxContentLength(uint64_t value) = 0;
-
-    virtual void setUpgradeFactoryBuilder(const util::Builder<HttpUpgradeFactory>& factoryBuilder) = 0;
 };
 
 class HttpConfig
@@ -20,6 +18,11 @@ public:
     virtual void configHttp(HttpConfigurations *protocol) = 0;
 
     virtual void configUpgradeFactoryBuilder(HttpUpgradeFactoryBuilder& builder) = 0;
+
+    const util::Builder<HttpUpgradeFactory>& getHttpUpgradeFactoryBuilder() const
+    {
+        return this->upgradeFactoryBuilder;
+    }
 
 protected:
     HttpUpgradeFactoryBuilder upgradeFactoryBuilder;

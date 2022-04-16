@@ -8,11 +8,18 @@ SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 class WebsocketExtension
 {
 public:
-    WebsocketExtension(int rsvIndex, const std::string &name, const std::string &paramName)
+    enum class Type
+    {
+        PER_MESSAGE,
+        // maybe per frame in the futrue
+    };
+
+    WebsocketExtension(int rsvIndex, const std::string &name, const std::string &paramName, Type type)
     {
         this->rsvIndex = rsvIndex;
         this->name = name;
         this->paramName = paramName;
+        this->type = type;
     }
 
     /**
@@ -50,6 +57,21 @@ public:
         }
     }
 
+    int getRsvIndex() const
+    {
+        return this->rsvIndex;
+    }
+
+    const std::string &getName() const
+    {
+        return this->name;
+    }
+
+    Type getType() const
+    {
+        return this->type;
+    }
+
 protected:
     std::string param;
 
@@ -57,6 +79,7 @@ private:
     int rsvIndex;
     std::string name;
     std::string paramName;
+    Type type;
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END

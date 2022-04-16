@@ -1,0 +1,13 @@
+#ifndef SERVER_TEMPLATE_WS_WS_MESSAGE_PARSER_H_
+#define SERVER_TEMPLATE_WS_WS_MESSAGE_PARSER_H_
+
+#include "ws_frame_parser.h"
+#include "ws_message.h"
+
+SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
+
+
+
+SERVER_TEMPLATE_WS_NAMESPACE_END
+
+#endif

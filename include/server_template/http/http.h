@@ -69,17 +69,13 @@ public:
         this->config = config;
         auto httpConfig = dynamic_cast<HttpConfig *>(config);
         httpConfig->configHttp(this);
+        this->upgradeFactory = httpConfig->getHttpUpgradeFactoryBuilder().build();
     }
 
     virtual void setMaxContentLength(uint64_t value) override
     {
         this->maxContentLength = value;
         this->parser.setMaxContentLength(value);
-    }
-
-    virtual void setUpgradeFactoryBuilder(const util::Builder<HttpUpgradeFactory> &factoryBuilder) override
-    {
-        this->upgradeFactory = factoryBuilder.build();
     }
 
 private:

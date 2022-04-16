@@ -5,11 +5,11 @@
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
-class PerMessageCompressionExtension : public WebsocketExtension
+class PerMessageExtension : public WebsocketExtension
 {
 public:
-    PerMessageCompressionExtension(const std::string &name, const std::string &paramName)
-        : WebsocketExtension(0, name, paramName) {}
+    PerMessageExtension(int rsvIndex, const std::string &name, const std::string &paramName)
+        : WebsocketExtension(rsvIndex, name, paramName, WebsocketExtension::Type::PER_MESSAGE) {}
 
     /**
      * @brief decode the message using this extension's algorithm
@@ -26,6 +26,13 @@ public:
      * @param message the message to send
      */
     virtual void encodeMessage(WebsocketMessage &message) = 0;
+};
+
+class PerMessageCompressionExtension : public PerMessageExtension
+{
+public:
+    PerMessageCompressionExtension(const std::string &name, const std::string &paramName)
+        : PerMessageExtension(0, name, paramName) {}
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END
