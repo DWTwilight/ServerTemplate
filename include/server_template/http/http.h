@@ -68,6 +68,7 @@ public:
     {
         this->config = config;
         auto httpConfig = dynamic_cast<HttpConfig *>(config);
+        httpConfig->initialize();
         httpConfig->configHttp(this);
         this->upgradeFactory = httpConfig->getHttpUpgradeFactoryBuilder().build();
     }

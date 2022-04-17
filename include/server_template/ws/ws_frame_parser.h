@@ -100,7 +100,7 @@ private:
                             // 2 bytes
                             uint16_t length;
                             util::ByteConverter::fromBytes(buffer.data(), length);
-                            if (this->maxPayloadLength < length)
+                            if (this->maxPayloadLength < length || length < 126)
                             {
                                 // message is too large, abort
                                 return base::ParseResult::PARSE_ERROR;
@@ -112,7 +112,7 @@ private:
                             // 8 bytes
                             uint64_t length;
                             util::ByteConverter::fromBytes(buffer.data(), length);
-                            if (this->maxPayloadLength < length)
+                            if (this->maxPayloadLength < length || length < UINT16_MAX)
                             {
                                 // message is too large, abort
                                 return base::ParseResult::PARSE_ERROR;
