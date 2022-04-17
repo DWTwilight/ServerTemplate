@@ -1,15 +1,22 @@
 #ifndef SERVER_TEMPLATE_WS_WS_SESSION_HANDLER_H_
 #define SERVER_TEMPLATE_WS_WS_SESSION_HANDLER_H_
 
+#include "ws_pme.h"
 #include "ws_message.h"
 #include "../util/byte_array.h"
+#include "../util/ip_address.h"
+#include "../http/http_request.h"
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
 class WebsocketSessionInfo
 {
 public:
-    // TODO
+    std::vector<WebsocketPerMessageExtension *> pmeExtensions;
+    std::string subprotocol;
+    util::IpAddress clientIpAddress;
+    std::map<std::string, std::string> securityAttributes;
+    http::HttpRequest handshakeRequest;
 };
 
 class WebsocketSessionHandler

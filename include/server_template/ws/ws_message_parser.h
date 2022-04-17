@@ -17,7 +17,7 @@ public:
         std::function<void(void *, WebsocketMessage *)> onMessage;
     };
 
-    WebsocketMessageParser(std::vector<WebsocketPerMessageExtension *> *extensions, Config *config, size_t maxPayloadLength)
+    WebsocketMessageParser(const std::vector<WebsocketPerMessageExtension *> *extensions, const Config *config, size_t maxPayloadLength = UINT32_MAX)
     {
         this->extensions = extensions;
         this->config = config;
@@ -30,6 +30,12 @@ public:
         nparsed = 0;
         this->result = consume(begin, end, nparsed);
         return this->result;
+    }
+
+    void setMaxPayloadLength(size_t value)
+    {
+        this->maxPayloadLength = value;
+        this->frameParser.setMaxPayloadLength(maxPayloadLength);
     }
 
 private:
@@ -96,8 +102,8 @@ private:
     }
 
     WebsocketFrameParser frameParser;
-    std::vector<WebsocketPerMessageExtension *> *extensions; // in encode order
-    Config *config;
+    const std::vector<WebsocketPerMessageExtension *> *extensions; // in encode order
+    const Config *config;
     size_t maxPayloadLength = UINT32_MAX;
 };
 

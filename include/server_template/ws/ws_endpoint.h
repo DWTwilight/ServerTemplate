@@ -13,7 +13,7 @@ using SubprotocolHandler = std::function<void(WebsocketSessionHandler *handler, 
 class WebsocketEndpoint
 {
 public:
-    virtual bool preAuthorize(WebsocketSessionHandler *handler, std::map<std::string, std::string> &securityAttributes)
+    virtual bool preAuthorize(http::HttpRequest* req, std::map<std::string, std::string> &securityAttributes)
     {
         return true;
     }
