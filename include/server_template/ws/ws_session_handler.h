@@ -8,11 +8,10 @@
 #include "../http/http_request.h"
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
-
 class WebsocketSessionInfo
 {
 public:
-    std::vector<WebsocketPerMessageExtension *> pmeExtensions;
+    std::vector<WebsocketPMEInstance> pmeExtensions;
     std::string subprotocol;
     util::IpAddress clientIpAddress;
     std::map<std::string, std::string> securityAttributes;

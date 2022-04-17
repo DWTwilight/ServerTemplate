@@ -12,6 +12,7 @@ class Websocket : public http::HttpUpgradeProtocol, public WebsocketConfiguratio
 public:
     virtual void handleUpgrade(http::HttpRequest *req) override
     {
+        this->startHandshake(req);
     }
 
     virtual void onTCPData(ssize_t nread, char *bytes) override
@@ -58,12 +59,12 @@ public:
     {
     }
 
-    const std::vector<WebsocketPerMessageExtension *>* getPMEExtensions() const
+    std::vector<WebsocketPMEInstance>* getPMEExtensions()
     {
         return &this->sessionInfo.pmeExtensions;
     }
 
-    const WebsocketMessageParser::Config* getParserConfig() const
+    WebsocketMessageParser::Config* getParserConfig()
     {
         return &this->config;
     }
@@ -74,8 +75,8 @@ private:
     }
 
     // global config
-    const WebsocketEndpointManager *endpointManager;
-    const WebsocketPMEManager *pmeManager;
+    WebsocketEndpointManager *endpointManager;
+    WebsocketPMEManager *pmeManager;
 
     // session info
     WebsocketSessionInfo sessionInfo;

@@ -18,14 +18,48 @@ public:
      * @return true : success
      * @return false : failed, the connection will close afterwards
      */
-    virtual bool decodeMessage(WebsocketMessage &message) = 0;
+    virtual bool decodeMessage(WebsocketMessage &message, const std::string &param) = 0;
 
     /**
      * @brief encode the message to send
      *
      * @param message the message to send
      */
-    virtual void encodeMessage(WebsocketMessage &message) = 0;
+    virtual void encodeMessage(WebsocketMessage &message, const std::string &param) = 0;
+};
+
+class WebsocketPMEInstance
+{
+public:
+    WebsocketPMEInstance(WebsocketPerMessageExtension *extension, const std::string &param = std::string())
+    {
+        this->extension = extension;
+        this->param = param;
+    }
+
+    void setParam(const std::string &param)
+    {
+        this->param = param;
+    }
+
+    bool decodeMessage(WebsocketMessage &message)
+    {
+        return extension->decodeMessage(message, param);
+    }
+
+    void encodeMessage(WebsocketMessage &message)
+    {
+        extension->encodeMessage(message, param);
+    }
+
+    int getRsvIndex() const
+    {
+        return extension->getRsvIndex();
+    }
+
+private:
+    WebsocketPerMessageExtension *extension;
+    std::string param;
 };
 
 class PerMessageCompressionExtension : public WebsocketPerMessageExtension

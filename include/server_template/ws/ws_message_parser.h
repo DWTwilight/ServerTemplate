@@ -17,7 +17,7 @@ public:
         std::function<void(void *, WebsocketMessage *)> onMessage;
     };
 
-    WebsocketMessageParser(const std::vector<WebsocketPerMessageExtension *> *extensions, const Config *config, size_t maxPayloadLength = UINT32_MAX)
+    WebsocketMessageParser(std::vector<WebsocketPMEInstance> *extensions, Config *config, size_t maxPayloadLength = UINT32_MAX)
     {
         this->extensions = extensions;
         this->config = config;
@@ -44,17 +44,21 @@ private:
         this->frame = WebsocketMessage();
     }
 
-    void extensionDecode()
+    bool extensionDecode()
     {
         for (int i = this->extensions->size() - 1; i >= 0; i--)
         {
-            auto extension = this->extensions->at(i);
-            if (this->frame.rsv[extension->getRsvIndex()])
+            auto &extension = this->extensions->at(i);
+            if (this->frame.rsv[extension.getRsvIndex()])
             {
                 // extension is on
-                extension->decodeMessage(this->frame);
+                if (!extension.decodeMessage(this->frame))
+                {
+                    return false;
+                }
             }
         }
+        return true;
     }
 
     base::ParseResult consume(const char *begin, const char *end, size_t &nparsed)
@@ -84,7 +88,10 @@ private:
                 if (this->frame.complete)
                 {
                     // extension decode
-                    extensionDecode();
+                    if (!extensionDecode())
+                    {
+                        return base::ParseResult::PARSE_ERROR;
+                    }
                     this->config->onMessage(this->config->arg, &this->frame);
                     // reset message
                     this->reset();
@@ -102,8 +109,8 @@ private:
     }
 
     WebsocketFrameParser frameParser;
-    const std::vector<WebsocketPerMessageExtension *> *extensions; // in encode order
-    const Config *config;
+    std::vector<WebsocketPMEInstance> *extensions; // in encode order
+    Config *config;
     size_t maxPayloadLength = UINT32_MAX;
 };
 

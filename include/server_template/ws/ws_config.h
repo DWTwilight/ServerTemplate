@@ -46,12 +46,12 @@ public:
         }
     }
 
-    const WebsocketEndpointManager *getEndpointManager() const
+    WebsocketEndpointManager *getEndpointManager()
     {
         return &this->endpointManager;
     }
 
-    const WebsocketPMEManager *getPMEManager() const
+    WebsocketPMEManager *getPMEManager()
     {
         return &this->pmeManager;
     }

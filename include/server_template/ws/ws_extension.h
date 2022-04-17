@@ -22,40 +22,40 @@ public:
         this->type = type;
     }
 
-    /**
-     * @brief parse param
-     *
-     * @param paramStr trimed str
-     * @return true: success
-     * @return false: parse error
-     */
-    bool parseParam(const std::string &paramStr)
-    {
-        auto pos = paramStr.find_first_of('=');
-        if (pos == std::string::npos)
-        {
-            return false;
-        }
-        if (paramStr[pos + 1] == '\"')
-        {
-            // quoted
-            if (paramStr[paramStr.length() - 1] != '\"')
-            {
-                // invalid quote
-                return false;
-            }
-            param = paramStr.substr(pos + 2, paramStr.length() - pos - 3);
-        }
-        else
-        {
-            if (paramStr[paramStr.length() - 1] == '\"')
-            {
-                // invalid quote
-                return false;
-            }
-            param = paramStr.substr(pos + 1, paramStr.length() - pos - 1);
-        }
-    }
+    // /**
+    //  * @brief parse param
+    //  *
+    //  * @param paramStr trimed str
+    //  * @return true: success
+    //  * @return false: parse error
+    //  */
+    // bool parseParam(const std::string &paramStr)
+    // {
+    //     auto pos = paramStr.find_first_of('=');
+    //     if (pos == std::string::npos)
+    //     {
+    //         return false;
+    //     }
+    //     if (paramStr[pos + 1] == '\"')
+    //     {
+    //         // quoted
+    //         if (paramStr[paramStr.length() - 1] != '\"')
+    //         {
+    //             // invalid quote
+    //             return false;
+    //         }
+    //         param = paramStr.substr(pos + 2, paramStr.length() - pos - 3);
+    //     }
+    //     else
+    //     {
+    //         if (paramStr[paramStr.length() - 1] == '\"')
+    //         {
+    //             // invalid quote
+    //             return false;
+    //         }
+    //         param = paramStr.substr(pos + 1, paramStr.length() - pos - 1);
+    //     }
+    // }
 
     int getRsvIndex() const
     {
@@ -67,13 +67,15 @@ public:
         return this->name;
     }
 
+    const std::string &getParamName() const
+    {
+        return this->paramName;
+    }
+
     Type getType() const
     {
         return this->type;
     }
-
-protected:
-    std::string param;
 
 private:
     int rsvIndex;
