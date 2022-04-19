@@ -81,8 +81,8 @@ public:
 
             output.push_back(BASE64_ALPHABET[byte0 >> 2]);
             output.push_back(BASE64_ALPHABET[((byte0 & 0x03) << 4) | (byte1 >> 4)]);
-            output.push_back(eqCount-- > 0 ? '=' : BASE64_ALPHABET[((byte1 & 0x0f) << 2) | (byte2 >> 6)]);
-            output.push_back(eqCount-- > 0 ? '=' : BASE64_ALPHABET[byte2 & 0x3f]);
+            output.push_back(eqCount > 1 ? '=' : BASE64_ALPHABET[((byte1 & 0x0f) << 2) | (byte2 >> 6)]);
+            output.push_back(eqCount > 0 ? '=' : BASE64_ALPHABET[byte2 & 0x3f]);
         }
     }
 

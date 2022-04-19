@@ -18,6 +18,7 @@ public:
         auto queryPos = uriStr.find_first_of('?', paramsPos == std::string::npos ? 0 : paramsPos);
         auto fragmentPos = uriStr.find_first_of('#', queryPos == std::string::npos ? (paramsPos == std::string::npos ? 0 : paramsPos) : queryPos);
 
+#undef min
         auto min = std::min(paramsPos, queryPos);
         min = std::min(min, fragmentPos);
         if (min == std::string::npos)

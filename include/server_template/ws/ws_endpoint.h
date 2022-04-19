@@ -8,11 +8,11 @@
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
-using SubprotocolHandler = std::function<void(WebsocketSessionHandler *handler, WebsocketMessage *message)>;
-
 class WebsocketEndpoint
 {
 public:
+    using SubprotocolHandler = std::function<void(WebsocketEndpoint* endpoint, WebsocketSessionHandler *handler, WebsocketMessage *message)>;
+
     virtual bool preAuthorize(http::HttpRequest* req, std::map<std::string, std::string> &securityAttributes)
     {
         return true;
@@ -37,7 +37,7 @@ public:
 
     void onMessageSubprotocol(const std::string& protocol, WebsocketSessionHandler *handler, WebsocketMessage *message)
     {
-        this->subprotocolHandlerMap[protocol](handler, message);
+        this->subprotocolHandlerMap[protocol](this, handler, message);
     }
 
 protected:

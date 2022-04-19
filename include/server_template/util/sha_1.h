@@ -90,7 +90,7 @@ public:
 private:
     static int getFillCount(size_t inputLength)
     {
-        return 56 - (inputLength % 64);
+        return (120 - (inputLength % 64)) % 64;
     }
 
     static uint32_t k(int t)

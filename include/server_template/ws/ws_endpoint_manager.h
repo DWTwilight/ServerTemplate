@@ -16,19 +16,31 @@ public:
         }
     }
 
-    WebsocketEndpointManager* addEndpoint(const std::string& path, WebsocketEndpoint* endpoint)
+    WebsocketEndpoint* addEndpoint(const std::string& path, WebsocketEndpoint* endpoint)
     {
         if (this->endpointMap.find(path) != endpointMap.end())
         {
             abort();
         }
         this->endpointMap[path] = endpoint;
-        return this;
+        return endpoint;
+    }
+
+    template <typename Endpoint>
+    WebsocketEndpoint* addEndpoint(const std::string& path)
+    {
+        if (this->endpointMap.find(path) != endpointMap.end())
+        {
+            abort();
+        }
+        auto endpoint = dynamic_cast<WebsocketEndpoint*>(new Endpoint());
+        this->endpointMap[path] = endpoint;
+        return endpoint;
     }
 
     WebsocketEndpoint* getEndpoint(const std::string& path)
     {
-        if (this->endpointMap.find(path) != endpointMap.end())
+        if (this->endpointMap.find(path) == endpointMap.end())
         {
             return NULL;
         }

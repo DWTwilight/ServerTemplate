@@ -78,7 +78,11 @@ public:
         response.headerMap[UPGRADE_HEADER] = "websocket";
         response.headerMap[CONNECTION_HEADER] = "Upgrade";
         util::ByteArray bytes;
-        util::SHA1::computeHash(util::ByteArray(encodedKey.append(WEBSOCKET_CONST_STR)), bytes);
+        encodedKey.append(WEBSOCKET_CONST_STR);
+        log(encodedKey.c_str());
+        util::SHA1::computeHash(util::ByteArray(encodedKey), bytes);
+        bytes.toString(encodedKey);
+        log(encodedKey.c_str());
         util::Base64::encode(bytes, response.headerMap[SEC_WEBSOCKET_ACCEPT_HEADER]);
         // subprotocol
         if (!this->sessionInfo.subprotocol.empty())
@@ -95,6 +99,9 @@ public:
                 response.headerMap[SEC_WEBSOCKET_EXTENSIONS_HEADER].append(this->sessionInfo.pmeExtensions[i].getOriginalToken());
             }
         }
+        // to pass postman
+        response.payload.append("connection accepted");
+        response.headerMap[CONTENT_TYPE_HEADER] = "text/plain";
     }
 
     virtual void onTCPData(ssize_t nread, char *bytes) override

@@ -2,6 +2,7 @@
 #define SERVER_TEMPLATE_WS_WS_PME_H_
 
 #include "ws_extension.h"
+#include <map>
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 

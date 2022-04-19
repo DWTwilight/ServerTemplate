@@ -6,6 +6,7 @@
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 
+#undef DELETE
 #define HTTP_METHOD_MAP(XX) \
     XX(0, DELETE)           \
     XX(1, GET)              \

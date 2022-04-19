@@ -1,2 +1,3 @@
 add_subdirectory(echo_server)
 add_subdirectory(http_server)
+add_subdirectory(ws_server)
