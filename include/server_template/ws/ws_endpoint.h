@@ -30,6 +30,16 @@ public:
         return this;
     }
 
+    bool hasSubprotocol(const std::string& name) const
+    {
+        return this->subprotocolHandlerMap.find(name) != this->subprotocolHandlerMap.end();
+    }
+
+    void onMessageSubprotocol(const std::string& protocol, WebsocketSessionHandler *handler, WebsocketMessage *message)
+    {
+        this->subprotocolHandlerMap[protocol](handler, message);
+    }
+
 protected:
     std::unordered_map<std::string, SubprotocolHandler> subprotocolHandlerMap;
 };

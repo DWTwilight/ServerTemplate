@@ -110,7 +110,13 @@ private:
         }
         else
         {
-            this->upgrade->handleUpgrade(req);
+            HttpResponse response;
+            this->upgrade->handleUpgrade(req, response);
+            returnResponse(response);
+            if (response.status != HttpStatus::SWITCHING_PROTOCOLS)
+            {
+                this->connHandler->closeConnection();
+            }
         }
     }
 
@@ -118,9 +124,13 @@ private:
     {
         HttpResponse response;
         HttpResponse::buildBadRequest(response, message, contentType);
+        returnResponse(response);
+    }
+
+    void returnResponse(HttpResponse& response)
+    {
         util::ByteArray bytes;
         response.toBytes(bytes);
-
         this->connHandler->writeBytes(bytes);
     }
 

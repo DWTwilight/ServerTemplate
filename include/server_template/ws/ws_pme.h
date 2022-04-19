@@ -8,8 +8,8 @@ SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 class WebsocketPerMessageExtension : public WebsocketExtension
 {
 public:
-    WebsocketPerMessageExtension(int rsvIndex, const std::string &name, const std::string &paramName)
-        : WebsocketExtension(rsvIndex, name, paramName, WebsocketExtension::Type::PER_MESSAGE) {}
+    WebsocketPerMessageExtension(int rsvIndex, const std::string &name)
+        : WebsocketExtension(rsvIndex, name, WebsocketExtension::Type::PER_MESSAGE) {}
 
     /**
      * @brief decode the message using this extension's algorithm
@@ -18,28 +18,33 @@ public:
      * @return true : success
      * @return false : failed, the connection will close afterwards
      */
-    virtual bool decodeMessage(WebsocketMessage &message, const std::string &param) = 0;
+    virtual bool decodeMessage(WebsocketMessage &message, const std::map<std::string, std::string> &param) = 0;
 
     /**
      * @brief encode the message to send
      *
      * @param message the message to send
      */
-    virtual void encodeMessage(WebsocketMessage &message, const std::string &param) = 0;
+    virtual void encodeMessage(WebsocketMessage &message, const std::map<std::string, std::string> &param) = 0;
 };
 
 class WebsocketPMEInstance
 {
 public:
-    WebsocketPMEInstance(WebsocketPerMessageExtension *extension, const std::string &param = std::string())
+    WebsocketPMEInstance(WebsocketPerMessageExtension *extension, const std::string& originalToken)
     {
         this->extension = extension;
+        this->originalToken = originalToken;
+    }
+
+    void setParam(const std::map<std::string, std::string> &param)
+    {
         this->param = param;
     }
 
-    void setParam(const std::string &param)
+    void addParam(const std::string& key, const std::string& value)
     {
-        this->param = param;
+        this->param[key] = value;
     }
 
     bool decodeMessage(WebsocketMessage &message)
@@ -57,16 +62,22 @@ public:
         return extension->getRsvIndex();
     }
 
+    const std::string& getOriginalToken() const
+    {
+        return this->originalToken;
+    }
+
 private:
     WebsocketPerMessageExtension *extension;
-    std::string param;
+    std::string originalToken;
+    std::map<std::string, std::string> param;
 };
 
 class PerMessageCompressionExtension : public WebsocketPerMessageExtension
 {
 public:
-    PerMessageCompressionExtension(const std::string &name, const std::string &paramName)
-        : WebsocketPerMessageExtension(0, name, paramName) {}
+    PerMessageCompressionExtension(const std::string &name)
+        : WebsocketPerMessageExtension(0, name) {}
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END

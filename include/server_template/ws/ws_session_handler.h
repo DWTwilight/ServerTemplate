@@ -6,14 +6,16 @@
 #include "../util/byte_array.h"
 #include "../util/ip_address.h"
 #include "../http/http_request.h"
+#include <map>
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 class WebsocketSessionInfo
 {
 public:
+    std::string sessionKey;
     std::vector<WebsocketPMEInstance> pmeExtensions;
     std::string subprotocol;
-    util::IpAddress clientIpAddress;
+    util::IpAddress* clientIpAddress;
     std::map<std::string, std::string> securityAttributes;
     http::HttpRequest handshakeRequest;
 };

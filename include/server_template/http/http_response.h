@@ -22,6 +22,29 @@ public:
         }
     }
 
+    static void buildSimpleResponse(HttpResponse& response, HttpStatus status, const std::string& message, const std::string& contentType, bool closeConnection = true)
+    {
+        response.status = status;
+        response.majorVersion = 1;
+        response.minorVersion = 1;
+        if (closeConnection)
+        {
+            response.headerMap[CONNECTION_HEADER] = "close";
+        }
+        if (!message.empty())
+        {
+            response.payload = util::ByteArray(message);
+            response.headerMap[CONTENT_TYPE_HEADER] = contentType;
+        }
+    }
+
+    static void buildSimpleResponse(HttpResponse& response, HttpStatus status)
+    {
+        response.status = status;
+        response.majorVersion = 1;
+        response.minorVersion = 1;
+    }
+
     HttpStatus status;
     int majorVersion;
     int minorVersion;

@@ -12,6 +12,7 @@ SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 #define CONNECTION_HEADER "connection"
 #define UPGRADE_HEADER "Upgrade"
 #define CONTENT_TYPE_HEADER "content-type"
+#define HOST_HEADER "host"
 
 class HttpHeaderMap
 {
