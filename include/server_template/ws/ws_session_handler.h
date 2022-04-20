@@ -40,32 +40,43 @@ public:
     virtual void sendMessage(util::ByteArray& bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX) = 0;
 
     /**
-     * @brief send message to client
+     * @brief send utf-8 encoded text to client
      * 
      * @param bytes bytes to send
-     * @param type text | binary
      * @param fragmentation enable fragmentation? default false
      * @param mtu max transport uint (frame payload length, in bytes) default 0xffffui16
      */
-    void sendMessage(const std::string& bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX)
+    void sendText(const std::string& text, bool fragmentation = false, size_t mtu = UINT16_MAX)
     {
-        auto byteArray = util::ByteArray(bytes);
-        sendMessage(byteArray, type, fragmentation, mtu);
+        auto byteArray = util::ByteArray(text);
+        sendMessage(byteArray, WebsocketMessage::Type::TEXT, fragmentation, mtu);
     }
 
     /**
-     * @brief send message to client
+     * @brief send binary bytes to client
      * 
      * @param bytes bytes pointer
      * @param length number of bytes to send
-     * @param type text | binary
      * @param fragmentation enable fragmentation? default false
      * @param mtu max transport uint (frame payload length, in bytes) default 0xffffui16
      */
-    void sendMessage(const char* bytes, size_t length, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX)
+    void sendBinary(const char* bytes, size_t length, bool fragmentation = false, size_t mtu = UINT16_MAX)
     {
         auto byteArray = util::ByteArray(bytes, length);
-        sendMessage(byteArray, type, fragmentation, mtu);
+        sendMessage(byteArray, WebsocketMessage::Type::BINARY, fragmentation, mtu);
+    }
+
+    /**
+     * @brief send binary bytes to client
+     * 
+     * @param bytes bytes to send
+     * @param fragmentation enable fragmentation? default false
+     * @param mtu max transport uint (frame payload length, in bytes) default 0xffffui16
+     */
+    void sendBinary(const util::ByteArray& bytes, bool fragmentation = false, size_t mtu = UINT16_MAX)
+    {
+        auto byteArray = bytes;
+        sendMessage(byteArray, WebsocketMessage::Type::BINARY, fragmentation, mtu);
     }
 
     /**

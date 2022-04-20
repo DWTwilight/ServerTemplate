@@ -60,6 +60,10 @@ public:
 
     void append(const char *bytes, size_t length, bool reverse = false)
     {
+        if (length <= 0)
+        {
+            return;
+        }
         this->reserve(this->size() + length);
         if (reverse)
         {

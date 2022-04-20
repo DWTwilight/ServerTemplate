@@ -19,6 +19,14 @@ SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 class Websocket : public http::HttpUpgradeProtocol, public WebsocketConfigurations, public WebsocketSessionHandler
 {
 public:
+    enum class ConnectionStatus
+    {
+        Opening,
+        Open,
+        Closing,
+        Closed
+    };
+
     virtual void handleUpgrade(http::HttpRequest *req, http::HttpResponse& response) override
     {
         // check req
@@ -50,6 +58,7 @@ public:
         if (versionHeader.find("13") == std::string::npos)
         {
             http::HttpResponse::buildSimpleResponse(response, http::HttpStatus::UPGRADE_REQUIRED, "websocket version not supported", "text/plain");
+            response.headerMap[SEC_WEBSOCKET_VERSION_HEADER] = "13";
             return;
         }
         // resource name
@@ -99,13 +108,15 @@ public:
                 response.headerMap[SEC_WEBSOCKET_EXTENSIONS_HEADER].append(this->sessionInfo.pmeExtensions[i].getOriginalToken());
             }
         }
-        // to pass postman
-        response.payload.append("connection accepted");
-        response.headerMap[CONTENT_TYPE_HEADER] = "text/plain";
+
+        // conn open
+        this->status = ConnectionStatus::Open;
+        this->endpoint->onConnectionOpen(this);
     }
 
     virtual void onTCPData(ssize_t nread, char *bytes) override
     {
+        
     }
 
     virtual void useConfig(base::ConfigurationBase *config) override
@@ -206,6 +217,9 @@ private:
             }
         }
     }
+
+    // Connection Status
+    ConnectionStatus status = ConnectionStatus::Opening;
 
     // global config
     WebsocketEndpointManager *endpointManager;

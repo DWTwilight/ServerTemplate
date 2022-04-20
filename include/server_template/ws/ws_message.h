@@ -20,6 +20,11 @@ public:
         return payload.size();
     }
 
+    const bool* getRsv() const
+    {
+        return this->rsv;
+    }
+
     /**
      * @brief add a frame to this message
      *

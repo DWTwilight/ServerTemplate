@@ -2,7 +2,8 @@
 #define SERVER_TEMPLATE_WS_WS_FRAME_H_
 
 #include "ws_ns.h"
-#include "../util/byte_array.h"
+#include "../util/byte_converter.h"
+#include "../util/uuid.h"
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
@@ -35,6 +36,18 @@ public:
     util::ByteArray maskKey = util::ByteArray(4);
     util::ByteArray payload;
 
+    void init(WebsocketOpcode opcode, bool fin = true)
+    {
+        header.fin = fin;
+        header.opcode = opcode;
+        header.rsv1 = false;
+        header.rsv2 = false;
+        header.rsv3 = false;
+        header.mask = false;
+        maskKey = util::ByteArray(4);
+        payload = util::ByteArray();
+    }
+
     size_t getPayloadLength() const
     {
         return payload.empty() ? payload.capacity() : payload.size();
@@ -43,6 +56,53 @@ public:
     bool isControlFrame() const
     {
         return header.opcode == WebsocketOpcode::CONNECTION_CLOSE || header.opcode == WebsocketOpcode::PING || header.opcode == WebsocketOpcode::PONG;
+    }
+
+    void maskPayload()
+    {
+        this->header.mask = true;
+        this->maskKey = util::ByteArray(util::UUID::generate(4));
+        // mask payload
+        for (int i = 0; i < this->payload.size(); i++)
+        {
+            this->payload[i] ^= this->maskKey[i % 4];
+        }
+    }
+
+    /**
+     * @brief convert this frame to byte array; the frame should be extension-encoded already(if extensions are enabled) or masked
+     *
+     * @param bytes output buffer
+     */
+    void toBytes(util::ByteArray &bytes)
+    {
+        // cal payload length
+        auto length = this->getPayloadLength();
+        util::ByteArray buffer;
+        if (length <= 125)
+        {
+            this->header.payloadLength = length;
+        }
+        else if (length <= UINT16_MAX)
+        {
+            this->header.payloadLength = 126;
+            auto len16 = (uint16_t)length;
+            util::ByteConverter::toBytes(len16, buffer);
+        }
+        else
+        {
+            this->header.payloadLength = 127;
+            auto len64 = (uint64_t)length;
+            util::ByteConverter::toBytes(len64, buffer);
+        }
+        bytes = util::ByteArray(2 + buffer.size() + maskKey.size() + payload.size());
+        bytes.append((char *)&this->header, 2);
+        bytes.append(buffer);
+        if (this->header.mask)
+        {
+            bytes.append(maskKey);
+        }
+        bytes.append(payload);
     }
 };
 
