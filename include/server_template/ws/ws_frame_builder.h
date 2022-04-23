@@ -3,13 +3,14 @@
 
 #include "ws_message.h"
 #include "ws_status.h"
+#include <queue>
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
 class WebsocketFrameBuilder
 {
 public:
-    static WebsocketFrame* buildSingle(const WebsocketMessage& message, bool mask = false)
+    static WebsocketFrame *buildSingle(const WebsocketMessage &message, bool mask = false)
     {
         auto frame = new WebsocketFrame();
         frame->init((WebsocketOpcode)message.type);
@@ -21,7 +22,7 @@ public:
         return frame;
     }
 
-    static WebsocketFrame* buildFragment(const WebsocketMessage& message, size_t index, size_t mtu, bool mask = false)
+    static WebsocketFrame *buildFragment(const WebsocketMessage &message, size_t index, size_t mtu, bool mask = false)
     {
         auto frame = new WebsocketFrame();
         frame->init((WebsocketOpcode)message.type, false);
@@ -40,7 +41,7 @@ public:
             frame->header.fin = true;
             mtu = message.getPayloadLength() - offset;
         }
-        frame->payload = util::ByteArray((char*)message.payload.data() + offset, mtu);
+        frame->payload = util::ByteArray((char *)message.payload.data() + offset, mtu);
         if (mask)
         {
             frame->maskPayload();
@@ -48,25 +49,24 @@ public:
         return frame;
     }
 
-    static std::vector<WebsocketFrame*>* build(const WebsocketMessage& message, bool fragmentation, size_t mtu, bool mask = false)
+    static int build(std::queue<WebsocketFrame *>& frameQueue ,const WebsocketMessage &message, bool fragmentation, size_t mtu, bool mask = false)
     {
         auto fragmentCount = fragmentation ? (size_t)std::ceil(message.getPayloadLength() / (double)mtu) : 1;
-        auto frames = new std::vector<WebsocketFrame*>(fragmentCount);
         if (fragmentation)
         {
             for (int i = 0; i < fragmentCount; i++)
             {
-                frames->push_back(buildFragment(message, i, mtu, mask));
+                frameQueue.push(buildFragment(message, i, mtu, mask));
             }
         }
         else
         {
-            frames->push_back(buildSingle(message, mask));
+            frameQueue.push(buildSingle(message, mask));
         }
-        return frames;
+        return fragmentCount;
     }
 
-    static void buildCloseFrame(WebsocketFrame& frame, WebsocketStatus status = WebsocketStatus::CLOSURE, bool mask = false)
+    static void buildCloseFrame(WebsocketFrame &frame, WebsocketStatus status = WebsocketStatus::CLOSURE, bool mask = false)
     {
         frame.init(WebsocketOpcode::CONNECTION_CLOSE);
         util::ByteConverter::toBytes((uint16_t)status, frame.payload);
@@ -77,7 +77,7 @@ public:
         }
     }
 
-    static void buildPingFrame(WebsocketFrame& frame, const util::ByteArray& payload, bool mask = false)
+    static void buildPingFrame(WebsocketFrame &frame, const util::ByteArray &payload, bool mask = false)
     {
         frame.init(WebsocketOpcode::PING);
         frame.payload = payload;
@@ -87,7 +87,7 @@ public:
         }
     }
 
-    static void buildPongFrame(WebsocketFrame& frame, const WebsocketFrame& ping, bool mask = false)
+    static void buildPongFrame(WebsocketFrame &frame, const WebsocketFrame &ping, bool mask = false)
     {
         frame.init(WebsocketOpcode::PONG);
         frame.payload = ping.payload;

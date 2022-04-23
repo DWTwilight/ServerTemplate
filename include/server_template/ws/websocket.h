@@ -6,6 +6,7 @@
 #include "../http/http_upgrade_protocol.h"
 #include "../util/base64.h"
 #include "../util/sha_1.h"
+#include <queue>
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
@@ -21,13 +22,22 @@ class Websocket : public http::HttpUpgradeProtocol, public WebsocketConfiguratio
 public:
     enum class ConnectionStatus
     {
-        Opening,
         Open,
         Closing,
         Closed
     };
 
-    virtual void handleUpgrade(http::HttpRequest *req, http::HttpResponse& response) override
+    struct SendFrameTask
+    {
+        void *arg;
+        WebsocketFrame *frame;
+    };
+
+    Websocket()
+    {
+    }
+
+    virtual void handleUpgrade(http::HttpRequest *req, http::HttpResponse &response) override
     {
         // check req
         if (req->method != http::HttpMethod::GET)
@@ -109,14 +119,33 @@ public:
             }
         }
 
-        // conn open
         this->status = ConnectionStatus::Open;
+
+        // frameQueue
+        uv_sem_init(&this->frameQueueSem, 0);
+        uv_rwlock_init(&this->frameQueueLock);
+
+        // start writing thread
+        auto workReq = new uv_work_t;
+        workReq->data = this;
+        uv_queue_work(
+            this->connHandler->getTCPHandle()->loop, workReq,
+            [](uv_work_t *req)
+            {
+                auto handler = (Websocket *)(req->data);
+                handler->sendFramesAsync();
+            },
+            [](uv_work_t *req, int status)
+            {
+                delete req;
+            });
+
+        // conn open cb
         this->endpoint->onConnectionOpen(this);
     }
 
     virtual void onTCPData(ssize_t nread, char *bytes) override
     {
-        
     }
 
     virtual void useConfig(base::ConfigurationBase *config) override
@@ -135,15 +164,13 @@ public:
 
     virtual void closeConnection() override
     {
-
     }
 
-    virtual void sendMessage(util::ByteArray& bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX) override
+    virtual void sendMessage(util::ByteArray &bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX) override
     {
-
     }
 
-    virtual const WebsocketSessionInfo* getSessionInfo() const override
+    virtual const WebsocketSessionInfo *getSessionInfo() const override
     {
         return &this->sessionInfo;
     }
@@ -164,22 +191,64 @@ public:
         }
     }
 
-    std::vector<WebsocketPMEInstance>* getPMEExtensions()
+    std::vector<WebsocketPMEInstance> *getPMEExtensions()
     {
         return &this->sessionInfo.pmeExtensions;
     }
 
-    WebsocketMessageParser::Config* getParserConfig()
+    WebsocketMessageParser::Config *getParserConfig()
     {
         return &this->config;
     }
 
+    void sendFramesAsync()
+    {
+        while (this->status == ConnectionStatus::Open)
+        {
+            // wait for a frame to send
+            uv_sem_wait(&this->frameQueueSem);
+            if (this->status != ConnectionStatus::Open)
+            {
+                return;
+            }
+            // aquire the frame to send
+            uv_rwlock_wrlock(&this->frameQueueLock);
+            if (this->status != ConnectionStatus::Open)
+            {
+                return;
+            }
+            auto frame = this->frameQueue.front();
+            this->frameQueue.pop();
+            uv_rwlock_wrunlock(&this->frameQueueLock);
+            // send the frame
+            auto asyncHandle = new uv_async_t;
+            asyncHandle->data = new SendFrameTask{this, frame};
+            uv_async_init(this->connHandler->getTCPHandle()->loop, asyncHandle,
+                          [](uv_async_t *handle)
+                          {
+                              auto task = (SendFrameTask *)handle->data;
+                              ((Websocket *)task->arg)->sendFrame(task->frame);
+                              delete task->frame;
+                              delete task;
+                              delete handle;
+                          });
+            uv_async_send(asyncHandle);
+        }
+    }
+
+    void sendFrame(WebsocketFrame *frame)
+    {
+        util::ByteArray bytes;
+        frame->toBytes(bytes);
+        this->connHandler->writeBytes(bytes);
+    }
+
 private:
-    void processSubprotocol(const std::string& subprotocolHeader, std::string& subprotocol)
+    void processSubprotocol(const std::string &subprotocolHeader, std::string &subprotocol)
     {
         auto options = util::StringUtil::split(subprotocolHeader, ',', true);
         util::StringUtil::batchTrim(options);
-        for(const auto& option : options)
+        for (const auto &option : options)
         {
             if (this->endpoint->hasSubprotocol(option))
             {
@@ -189,11 +258,11 @@ private:
         }
     }
 
-    void processExtensions(const std::string& extensionHeader, std::vector<WebsocketPMEInstance>& extensions)
+    void processExtensions(const std::string &extensionHeader, std::vector<WebsocketPMEInstance> &extensions)
     {
         auto options = util::StringUtil::split(extensionHeader, ',', true);
         util::StringUtil::batchTrim(options);
-        for(const auto& option : options)
+        for (const auto &option : options)
         {
             auto tokens = util::StringUtil::split(option, ';', true);
             util::StringUtil::batchTrim(tokens);
@@ -201,7 +270,7 @@ private:
             if (!tokens.empty())
             {
                 auto pme = this->pmeManager->getPME(tokens[0]);
-                if (pme != NULL)
+                if (pme != NULL && !this->rsv[pme->getRsvIndex()])
                 {
                     auto instance = WebsocketPMEInstance(pme, option);
                     for (int i = 1; i < tokens.size(); i++)
@@ -218,8 +287,23 @@ private:
         }
     }
 
+    void sendControlFrame(WebsocketFrame &frame)
+    {
+        uv_rwlock_wrlock(&this->frameQueueLock);
+        if (this->status != ConnectionStatus::Open)
+        {
+            return;
+        }
+        this->sendFrame(&frame);
+        uv_rwlock_wrunlock(&this->frameQueueLock);
+    }
+
+    void sendMessageAsync()
+    {
+    }
+
     // Connection Status
-    ConnectionStatus status = ConnectionStatus::Opening;
+    ConnectionStatus status = ConnectionStatus::Closed;
 
     // global config
     WebsocketEndpointManager *endpointManager;
@@ -229,7 +313,7 @@ private:
     WebsocketSessionInfo sessionInfo;
 
     // endpoint
-    WebsocketEndpoint* endpoint;
+    WebsocketEndpoint *endpoint;
 
     // parser
     WebsocketMessageParser::Config config{this,
@@ -242,6 +326,14 @@ private:
                                               ((Websocket *)arg)->onMessage(msg);
                                           }};
     WebsocketMessageParser parser = WebsocketMessageParser(this->getPMEExtensions(), this->getParserConfig());
+
+    // frameQueue
+    std::queue<WebsocketFrame *> frameQueue; // frames to send
+    uv_rwlock_t frameQueueLock;              // for queue op
+    uv_sem_t frameQueueSem;                  // how many frames in the queue
+
+    // rsv
+    bool rsv[3] = {false, false, false};
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END

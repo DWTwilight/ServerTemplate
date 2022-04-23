@@ -72,6 +72,11 @@ public:
         return &this->clientIpAddress;
     }
 
+    virtual const uv_tcp_s* getTCPHandle() const override
+    {
+        return (uv_tcp_s *)this;
+    }
+
     void onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     {
         this->protocol->onTCPData(nread, buf->base);

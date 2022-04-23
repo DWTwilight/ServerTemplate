@@ -20,6 +20,8 @@ public:
     virtual void closeConnection() = 0;
 
     virtual util::IpAddress *getClientIpAddress() = 0;
+
+    virtual const uv_tcp_s *getTCPHandle() const = 0;
 };
 
 SERVER_TEMPLATE_TCP_NAMESPACE_END
