@@ -6,6 +6,7 @@
 #include "../util/byte_array.h"
 #include "../util/ip_address.h"
 #include "../http/http_request.h"
+#include "ws_status.h"
 #include <map>
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
@@ -27,7 +28,7 @@ public:
      * @brief close websocket connection with the client
      * 
      */
-    virtual void closeConnection() = 0;
+    virtual void closeConnection(WebsocketStatus status = WebsocketStatus::CLOSURE) = 0;
 
     /**
      * @brief send message to client

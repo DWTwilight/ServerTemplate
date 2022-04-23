@@ -6,7 +6,8 @@
 #include "../http/http_upgrade_protocol.h"
 #include "../util/base64.h"
 #include "../util/sha_1.h"
-#include <queue>
+#include "ws_frame_builder.h"
+#include "ws_message_builder.h"
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
@@ -22,9 +23,9 @@ class Websocket : public http::HttpUpgradeProtocol, public WebsocketConfiguratio
 public:
     enum class ConnectionStatus
     {
-        Open,
-        Closing,
-        Closed
+        OPEN,
+        CLOSING,
+        CLOSED
     };
 
     struct SendFrameTask
@@ -33,8 +34,17 @@ public:
         WebsocketFrame *frame;
     };
 
-    Websocket()
+    virtual ~Websocket()
     {
+        uv_rwlock_destroy(&this->frameQueueLock);
+        uv_sem_destroy(&this->frameQueueSem);
+        // free queue
+        while (!this->frameQueue.empty())
+        {
+            auto frame = frameQueue.front();
+            frameQueue.pop();
+            delete frame;
+        }
     }
 
     virtual void handleUpgrade(http::HttpRequest *req, http::HttpResponse &response) override
@@ -119,7 +129,7 @@ public:
             }
         }
 
-        this->status = ConnectionStatus::Open;
+        this->status = ConnectionStatus::OPEN;
 
         // frameQueue
         uv_sem_init(&this->frameQueueSem, 0);
@@ -146,6 +156,13 @@ public:
 
     virtual void onTCPData(ssize_t nread, char *bytes) override
     {
+        size_t nparsed;
+        auto res = this->parser.parse(bytes, bytes + nread, nparsed);
+        if (res == base::ParseResult::PARSE_ERROR)
+        {
+            // parse error, close connection
+            this->closeConnection(WebsocketStatus::PROTOCOL_ERROR);
+        }
     }
 
     virtual void useConfig(base::ConfigurationBase *config) override
@@ -162,12 +179,38 @@ public:
         this->parser.setMaxPayloadLength(value);
     }
 
-    virtual void closeConnection() override
+    virtual void closeConnection(WebsocketStatus status = WebsocketStatus::CLOSURE) override
     {
+        if (this->status != ConnectionStatus::OPEN)
+        {
+            return;
+        }
+        // send close frame
+        WebsocketFrame closeFrame;
+        WebsocketFrameBuilder::buildCloseFrame(closeFrame, status);
+        this->sendControlFrame(&closeFrame);
+        // change status, wait for close response
+        this->status == ConnectionStatus::CLOSING;
     }
 
     virtual void sendMessage(util::ByteArray &bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX) override
     {
+        if (this->status != ConnectionStatus::OPEN)
+        {
+            return;
+        }
+        WebsocketMessage message;
+        // build message
+        WebsocketMessageBuilder::build(message, bytes, type, this->sessionInfo.pmeExtensions);
+        // build frames
+        uv_rwlock_wrlock(&this->frameQueueLock);
+        auto frameCount = WebsocketFrameBuilder::build(this->frameQueue, message, fragmentation, mtu, false);
+        // inc sem
+        while (frameCount--)
+        {
+            uv_sem_post(&this->frameQueueSem);
+        }
+        uv_rwlock_wrunlock(&this->frameQueueLock);
     }
 
     virtual const WebsocketSessionInfo *getSessionInfo() const override
@@ -175,12 +218,49 @@ public:
         return &this->sessionInfo;
     }
 
-    void onControlFrame(WebsocketFrame *)
+    void onControlFrame(WebsocketFrame *frame)
     {
+        if (frame->getOpCode() == WebsocketOpcode::CONNECTION_CLOSE)
+        {
+            if (this->status == ConnectionStatus::OPEN)
+            {
+                // change status
+                this->status = ConnectionStatus::CLOSING;
+                // send close frame
+                WebsocketFrame closeFrame;
+                WebsocketFrameBuilder::buildCloseFrame(closeFrame);
+                this->sendControlFrame(&closeFrame);
+                // change status
+                this->status == ConnectionStatus::CLOSED;
+                // close tcp connection
+                this->connHandler->closeConnection();
+            }
+            else if (this->status == ConnectionStatus::CLOSING)
+            {
+                // change status
+                this->status == ConnectionStatus::CLOSED;
+                // close tcp connection
+                this->connHandler->closeConnection();
+            }
+        }
+        else if (frame->getOpCode() == WebsocketOpcode::PING)
+        {
+            if (this->status == ConnectionStatus::OPEN)
+            {
+                // send pong frame
+                WebsocketFrame pongFrame;
+                WebsocketFrameBuilder::buildPongFrame(pongFrame, frame);
+                this->sendControlFrame(&pongFrame);
+            }
+        }
     }
 
     void onMessage(WebsocketMessage *msg)
     {
+        if (this->status != ConnectionStatus::OPEN)
+        {
+            return;
+        }
         if (!this->sessionInfo.subprotocol.empty())
         {
             this->endpoint->onMessageSubprotocol(this->sessionInfo.subprotocol, this, msg);
@@ -201,19 +281,23 @@ public:
         return &this->config;
     }
 
+    /**
+     * @brief async thread to send message frames, not control frames
+     *
+     */
     void sendFramesAsync()
     {
-        while (this->status == ConnectionStatus::Open)
+        while (this->status == ConnectionStatus::OPEN)
         {
             // wait for a frame to send
             uv_sem_wait(&this->frameQueueSem);
-            if (this->status != ConnectionStatus::Open)
+            if (this->status != ConnectionStatus::OPEN)
             {
                 return;
             }
             // aquire the frame to send
             uv_rwlock_wrlock(&this->frameQueueLock);
-            if (this->status != ConnectionStatus::Open)
+            if (this->status != ConnectionStatus::OPEN)
             {
                 return;
             }
@@ -227,7 +311,7 @@ public:
                           [](uv_async_t *handle)
                           {
                               auto task = (SendFrameTask *)handle->data;
-                              ((Websocket *)task->arg)->sendFrame(task->frame);
+                              ((Websocket *)task->arg)->sendMessageFrame(task->frame);
                               delete task->frame;
                               delete task;
                               delete handle;
@@ -236,8 +320,19 @@ public:
         }
     }
 
-    void sendFrame(WebsocketFrame *frame)
+    void sendControlFrame(WebsocketFrame *frame)
     {
+        util::ByteArray bytes;
+        frame->toBytes(bytes);
+        this->connHandler->writeBytes(bytes);
+    }
+
+    void sendMessageFrame(WebsocketFrame *frame)
+    {
+        if (this->status != ConnectionStatus::OPEN)
+        {
+            return;
+        }
         util::ByteArray bytes;
         frame->toBytes(bytes);
         this->connHandler->writeBytes(bytes);
@@ -272,6 +367,7 @@ private:
                 auto pme = this->pmeManager->getPME(tokens[0]);
                 if (pme != NULL && !this->rsv[pme->getRsvIndex()])
                 {
+                    this->rsv[pme->getRsvIndex()] = true;
                     auto instance = WebsocketPMEInstance(pme, option);
                     for (int i = 1; i < tokens.size(); i++)
                     {
@@ -287,23 +383,8 @@ private:
         }
     }
 
-    void sendControlFrame(WebsocketFrame &frame)
-    {
-        uv_rwlock_wrlock(&this->frameQueueLock);
-        if (this->status != ConnectionStatus::Open)
-        {
-            return;
-        }
-        this->sendFrame(&frame);
-        uv_rwlock_wrunlock(&this->frameQueueLock);
-    }
-
-    void sendMessageAsync()
-    {
-    }
-
     // Connection Status
-    ConnectionStatus status = ConnectionStatus::Closed;
+    volatile ConnectionStatus status = ConnectionStatus::CLOSED;
 
     // global config
     WebsocketEndpointManager *endpointManager;

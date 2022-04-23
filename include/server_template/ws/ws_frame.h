@@ -58,6 +58,11 @@ public:
         return header.opcode == WebsocketOpcode::CONNECTION_CLOSE || header.opcode == WebsocketOpcode::PING || header.opcode == WebsocketOpcode::PONG;
     }
 
+    WebsocketOpcode getOpCode() const
+    {
+        return this->header.opcode;
+    }
+
     void maskPayload()
     {
         this->header.mask = true;

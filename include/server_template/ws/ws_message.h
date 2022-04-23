@@ -2,6 +2,7 @@
 #define SERVER_TEMPLATE_WS_WS_MESSAGE_H_
 
 #include "ws_frame.h"
+#include <map>
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 
@@ -77,6 +78,7 @@ public:
     }
 
     util::ByteArray payload;
+    std::map<std::string, util::ByteArray> extensionDataMap;
     Type type = Type::UNKNOWN;
     bool complete = false;
     int frameCount = 0;

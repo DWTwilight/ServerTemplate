@@ -49,7 +49,7 @@ public:
         return frame;
     }
 
-    static int build(std::queue<WebsocketFrame *>& frameQueue ,const WebsocketMessage &message, bool fragmentation, size_t mtu, bool mask = false)
+    static int build(std::queue<WebsocketFrame *> &frameQueue, const WebsocketMessage &message, bool fragmentation, size_t mtu, bool mask = false)
     {
         auto fragmentCount = fragmentation ? (size_t)std::ceil(message.getPayloadLength() / (double)mtu) : 1;
         if (fragmentation)
@@ -87,10 +87,10 @@ public:
         }
     }
 
-    static void buildPongFrame(WebsocketFrame &frame, const WebsocketFrame &ping, bool mask = false)
+    static void buildPongFrame(WebsocketFrame &frame, const WebsocketFrame *ping, bool mask = false)
     {
         frame.init(WebsocketOpcode::PONG);
-        frame.payload = ping.payload;
+        frame.payload = ping->payload;
         if (mask)
         {
             frame.maskPayload();
