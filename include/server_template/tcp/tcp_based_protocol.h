@@ -14,6 +14,8 @@ class TCPBasedProtocol
 public:
     using ProtocolFactory = std::function<TCPBasedProtocol *(base::ConfigurationBase *, ConnectionHandlerBase *)>;
 
+    virtual ~TCPBasedProtocol() {}
+
     virtual void onTCPData(ssize_t nread, char *bytes) {}
 
     virtual void onTCPConnectionOpen() {}

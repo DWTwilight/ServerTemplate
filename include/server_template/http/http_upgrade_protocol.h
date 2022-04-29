@@ -12,6 +12,8 @@ class HttpUpgradeProtocol : public tcp::TCPBasedProtocol
 public:
     using UpgradeProtocolFactory = std::function<HttpUpgradeProtocol *(base::ConfigurationBase *, tcp::ConnectionHandlerBase *)>;
 
+    virtual ~HttpUpgradeProtocol() {}
+
     virtual void handleUpgrade(HttpRequest *req, HttpResponse& response) = 0;
 };
 

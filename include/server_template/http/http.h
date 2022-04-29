@@ -18,9 +18,14 @@ class Http : public tcp::TCPBasedProtocol, public HttpConfigurations
 public:
     virtual ~Http()
     {
+        log("http dtor called");
         if (this->upgradeFactory != NULL)
         {
             delete this->upgradeFactory;
+        }
+        if (this->upgrade != NULL)
+        {
+            delete this->upgrade;
         }
     }
 

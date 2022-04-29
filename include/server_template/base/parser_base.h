@@ -16,6 +16,8 @@ template <typename FrameType>
 class ParserTemplate
 {
 public:
+    virtual ~ParserTemplate() {}
+
     virtual ParseResult parse(const char *begin, const char *end, size_t &nparsed) = 0;
 
     ParseResult getResult() const

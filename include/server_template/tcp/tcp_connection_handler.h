@@ -37,6 +37,7 @@ public:
 
     virtual ~TCPConnectionHandler()
     {
+        log("handler dtor called");
         if (this->protocol != NULL)
         {
             delete this->protocol;
@@ -134,6 +135,7 @@ public:
 
     void closePipe()
     {
+        log("close pipe");
         uv_close((uv_handle_t *)this->serverPipe,
                  [](uv_handle_t *handle)
                  {
@@ -211,6 +213,7 @@ public:
 
         uv_run(&loop, UV_RUN_DEFAULT);
         uv_loop_close(&loop);
+        log("conn end");
     }
 
 private:

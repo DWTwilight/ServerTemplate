@@ -36,6 +36,7 @@ public:
 
     virtual ~Websocket()
     {
+        log("ws dtor called");
         uv_rwlock_destroy(&this->frameQueueLock);
         uv_sem_destroy(&this->frameQueueSem);
         // free queue
@@ -153,6 +154,7 @@ public:
             },
             [](uv_work_t *req, int status)
             {
+                log("message thread end");
                 delete req;
             });
 
@@ -185,6 +187,11 @@ public:
         this->parser.setMaxPayloadLength(value);
     }
 
+    /**
+     * @brief close conn from server side
+     *
+     * @param status
+     */
     virtual void closeConnection(WebsocketStatus status = WebsocketStatus::CLOSURE) override
     {
         if (this->status != ConnectionStatus::OPEN)
@@ -197,6 +204,9 @@ public:
         this->sendControlFrame(&closeFrame);
         // change status, wait for close response
         this->status = ConnectionStatus::CLOSING;
+        // end frame thread
+        uv_sem_post(&this->frameQueueSem);
+        uv_rwlock_wrunlock(&this->frameQueueLock);
     }
 
     virtual void sendMessage(util::ByteArray &bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX) override
@@ -232,6 +242,9 @@ public:
             {
                 // change status
                 this->status = ConnectionStatus::CLOSING;
+                // end frame thread
+                uv_sem_post(&this->frameQueueSem);
+                uv_rwlock_wrunlock(&this->frameQueueLock);
                 // send close frame
                 WebsocketFrame closeFrame;
                 WebsocketFrameBuilder::buildCloseFrame(closeFrame);
@@ -295,6 +308,7 @@ public:
         {
             // wait for a frame to send
             uv_sem_wait(&this->frameQueueSem);
+            log("after wait");
             if (this->status != ConnectionStatus::OPEN)
             {
                 return;
@@ -340,6 +354,7 @@ public:
         util::ByteArray bytes;
         frame->toBytes(bytes);
         this->connHandler->writeBytes(bytes);
+        log("frame sent");
     }
 
 private:

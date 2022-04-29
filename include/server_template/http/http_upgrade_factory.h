@@ -16,14 +16,6 @@ public:
         this->factoryMap = factoryMap;
     }
 
-    virtual ~HttpUpgradeFactory()
-    {
-        for (auto i : instances)
-        {
-            delete i;
-        }
-    }
-
     HttpUpgradeProtocol *getProtocol(const std::string &name, base::ConfigurationBase *config, tcp::ConnectionHandlerBase *connHandler)
     {
         if (this->factoryMap->find(name) == this->factoryMap->end())
@@ -31,13 +23,11 @@ public:
             return NULL;
         }
         auto instance = this->factoryMap->at(name)(config, connHandler);
-        this->instances.push_back(instance);
         return instance;
     }
 
 private:
     const std::map<std::string, HttpUpgradeProtocol::UpgradeProtocolFactory> *factoryMap;
-    std::vector<HttpUpgradeProtocol *> instances;
 };
 
 class HttpUpgradeFactoryBuilder : public util::Builder<HttpUpgradeFactory>
