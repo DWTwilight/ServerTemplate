@@ -47,6 +47,12 @@ public:
         }
     }
 
+    virtual void onTCPConnectionClose() override
+    {
+        this->status = ConnectionStatus::CLOSED;
+        this->endpoint->onConnectionClose(this);
+    }
+
     virtual void handleUpgrade(http::HttpRequest *req, http::HttpResponse &response) override
     {
         // check req
@@ -190,7 +196,7 @@ public:
         WebsocketFrameBuilder::buildCloseFrame(closeFrame, status);
         this->sendControlFrame(&closeFrame);
         // change status, wait for close response
-        this->status == ConnectionStatus::CLOSING;
+        this->status = ConnectionStatus::CLOSING;
     }
 
     virtual void sendMessage(util::ByteArray &bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX) override
@@ -230,15 +236,13 @@ public:
                 WebsocketFrame closeFrame;
                 WebsocketFrameBuilder::buildCloseFrame(closeFrame);
                 this->sendControlFrame(&closeFrame);
-                // change status
-                this->status == ConnectionStatus::CLOSED;
                 // close tcp connection
                 this->connHandler->closeConnection();
             }
             else if (this->status == ConnectionStatus::CLOSING)
             {
                 // change status
-                this->status == ConnectionStatus::CLOSED;
+                this->status = ConnectionStatus::CLOSED;
                 // close tcp connection
                 this->connHandler->closeConnection();
             }
@@ -295,7 +299,7 @@ public:
             {
                 return;
             }
-            // aquire the frame to send
+            // acquire the frame to send
             uv_rwlock_wrlock(&this->frameQueueLock);
             if (this->status != ConnectionStatus::OPEN)
             {
@@ -355,6 +359,8 @@ private:
 
     void processExtensions(const std::string &extensionHeader, std::vector<WebsocketPMEInstance> &extensions)
     {
+        // rsv
+        bool rsv[3] = {false, false, false};
         auto options = util::StringUtil::split(extensionHeader, ',', true);
         util::StringUtil::batchTrim(options);
         for (const auto &option : options)
@@ -365,9 +371,9 @@ private:
             if (!tokens.empty())
             {
                 auto pme = this->pmeManager->getPME(tokens[0]);
-                if (pme != NULL && !this->rsv[pme->getRsvIndex()])
+                if (pme != NULL && !rsv[pme->getRsvIndex()])
                 {
-                    this->rsv[pme->getRsvIndex()] = true;
+                    rsv[pme->getRsvIndex()] = true;
                     auto instance = WebsocketPMEInstance(pme, option);
                     for (int i = 1; i < tokens.size(); i++)
                     {
@@ -412,9 +418,6 @@ private:
     std::queue<WebsocketFrame *> frameQueue; // frames to send
     uv_rwlock_t frameQueueLock;              // for queue op
     uv_sem_t frameQueueSem;                  // how many frames in the queue
-
-    // rsv
-    bool rsv[3] = {false, false, false};
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END

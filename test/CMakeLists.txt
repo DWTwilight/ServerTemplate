@@ -49,3 +49,7 @@ add_test(should_parse_ws_message ../bin/test_ws_message_parser)
 add_executable(test_utf8 test_utf8.cpp)
 target_link_libraries(test_utf8 PRIVATE uv_a server_template)
 add_test(should_check_if_utf8 ../bin/test_utf8)
+
+add_executable(test_ws_frame_builder test_ws_frame_builder.cpp)
+target_link_libraries(test_ws_frame_builder PRIVATE uv_a server_template)
+add_test(should_build_ws_frame ../bin/test_ws_frame_builder)

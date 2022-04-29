@@ -9,4 +9,7 @@ int main()
 {
     auto utf8String = "%u8FD9%u662F%u4E00%u6BB5UTF-8%u5B57%u7B26%u4E32"; // ASCII for 这是一段UTF-8字符串
     ASSERT(UTF8::isValidUTF8(utf8String))
+
+    auto utf8String2 = "123"; 
+    ASSERT(UTF8::isValidUTF8(utf8String2, 3))
 }

@@ -21,7 +21,7 @@ public:
 
     virtual void onMessage(WebsocketSessionHandler *handler, WebsocketMessage *message) override
     {
-
+        handler->sendText("message recieved");
     }
 };
 

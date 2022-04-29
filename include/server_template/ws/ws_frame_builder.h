@@ -10,49 +10,10 @@ SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 class WebsocketFrameBuilder
 {
 public:
-    static WebsocketFrame *buildSingle(const WebsocketMessage &message, bool mask = false)
-    {
-        auto frame = new WebsocketFrame();
-        frame->init((WebsocketOpcode)message.type);
-        frame->payload = message.payload;
-        if (mask)
-        {
-            frame->maskPayload();
-        }
-        return frame;
-    }
-
-    static WebsocketFrame *buildFragment(const WebsocketMessage &message, size_t index, size_t mtu, bool mask = false)
-    {
-        auto frame = new WebsocketFrame();
-        frame->init((WebsocketOpcode)message.type, false);
-        size_t offset = index * mtu;
-        if (index == 0)
-        {
-            // first one
-            auto rsv = message.getRsv();
-            frame->header.rsv1 = rsv[0];
-            frame->header.rsv2 = rsv[1];
-            frame->header.rsv3 = rsv[2];
-        }
-        else if (offset + mtu >= message.getPayloadLength())
-        {
-            // last one
-            frame->header.fin = true;
-            mtu = message.getPayloadLength() - offset;
-        }
-        frame->payload = util::ByteArray((char *)message.payload.data() + offset, mtu);
-        if (mask)
-        {
-            frame->maskPayload();
-        }
-        return frame;
-    }
-
-    static int build(std::queue<WebsocketFrame *> &frameQueue, const WebsocketMessage &message, bool fragmentation, size_t mtu, bool mask = false)
+    static int build(std::queue<WebsocketFrame *> &frameQueue, const WebsocketMessage &message, bool fragmentation, size_t mtu = UINT32_MAX, bool mask = false)
     {
         auto fragmentCount = fragmentation ? (size_t)std::ceil(message.getPayloadLength() / (double)mtu) : 1;
-        if (fragmentation)
+        if (fragmentCount > 1)
         {
             for (int i = 0; i < fragmentCount; i++)
             {
@@ -95,6 +56,50 @@ public:
         {
             frame.maskPayload();
         }
+    }
+
+private:
+    static WebsocketFrame *buildSingle(const WebsocketMessage &message, bool mask = false)
+    {
+        auto frame = new WebsocketFrame();
+        frame->init((WebsocketOpcode)message.type);
+        frame->payload = message.payload;
+        if (mask)
+        {
+            frame->maskPayload();
+        }
+        return frame;
+    }
+
+    static WebsocketFrame *buildFragment(const WebsocketMessage &message, size_t index, size_t mtu, bool mask = false)
+    {
+        auto frame = new WebsocketFrame();
+        size_t offset = index * mtu;
+        if (index == 0)
+        {
+            // first one
+            frame->init((WebsocketOpcode)message.type, false);
+            auto rsv = message.getRsv();
+            frame->header.rsv1 = rsv[0];
+            frame->header.rsv2 = rsv[1];
+            frame->header.rsv3 = rsv[2];
+        }
+        else
+        {
+            frame->init(WebsocketOpcode::CONTINUATION_FRAME, false);
+            if (offset + mtu >= message.getPayloadLength())
+            {
+                // last one
+                frame->header.fin = true;
+                mtu = message.getPayloadLength() - offset;
+            }
+        }
+        frame->payload = util::ByteArray((char *)message.payload.data() + offset, mtu);
+        if (mask)
+        {
+            frame->maskPayload();
+        }
+        return frame;
     }
 };
 

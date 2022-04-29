@@ -4,7 +4,7 @@
     if (!(exp))     \
         return -1;
 
-using WebsocketPerMessageExtension = server_template::ws::WebsocketPerMessageExtension;
+using WebsocketPMEInstance = server_template::ws::WebsocketPMEInstance;
 using WebsocketMessageParser = server_template::ws::WebsocketMessageParser;
 using WebsocketFrame = server_template::ws::WebsocketFrame;
 using WebsocketMessage = server_template::ws::WebsocketMessage;
@@ -32,7 +32,7 @@ int main()
             messageCount++;
             message = *msg;
         }};
-    std::vector<WebsocketPerMessageExtension *> extensions;
+    std::vector<WebsocketPMEInstance> extensions;
     auto parser = WebsocketMessageParser(&extensions, &config, UINT32_MAX);
     size_t nparsed;
     auto res = parser.parse((char*)bytes1, (char*)bytes1 + 5, nparsed);

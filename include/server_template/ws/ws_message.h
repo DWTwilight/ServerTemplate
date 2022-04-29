@@ -2,6 +2,7 @@
 #define SERVER_TEMPLATE_WS_WS_MESSAGE_H_
 
 #include "ws_frame.h"
+#include "../util/utf8.h"
 #include <map>
 
 SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
@@ -74,6 +75,16 @@ public:
         // check if complete
         this->complete = frame->header.fin;
         this->frameCount++;
+
+        if (this->complete && this->type == Type::TEXT)
+        {
+            // check if is utf-8 encoded
+            if (!util::UTF8::isValidUTF8(this->payload))
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 
