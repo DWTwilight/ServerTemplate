@@ -23,7 +23,7 @@ public:
     {
         if (this->connectionPoolSemFlag)
         {
-            uv_sem_destroy(this->connectionPoolSem);
+            uv_sem_destroy(&this->connectionPoolSem);
         }
     }
 

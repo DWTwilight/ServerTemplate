@@ -330,7 +330,7 @@ public:
     {
         // lock the thread lock
         uv_rwlock_wrlock(&this->frameThreadLock);
-        while (this->status == ConnectionStatus::OPEN)
+        while (true)
         {
             // wait for a frame to send
             uv_sem_wait(&this->frameQueueSem);
@@ -341,10 +341,6 @@ public:
             }
             // acquire the frame to send
             uv_rwlock_wrlock(&this->frameQueueLock);
-            if (this->status != ConnectionStatus::OPEN)
-            {
-                break;
-            }
             auto frame = this->frameQueue.front();
             this->frameQueue.pop();
             uv_rwlock_wrunlock(&this->frameQueueLock);
@@ -357,8 +353,11 @@ public:
                               auto task = (SendFrameTask *)handle->data;
                               ((Websocket *)task->arg)->sendMessageFrame(task->frame);
                               delete task->frame;
-                              delete task;
-                              delete handle;
+                              uv_close((uv_handle_t *)handle,
+                                       [](uv_handle_t *handle)
+                                       {
+                                           delete handle;
+                                       });
                           });
             uv_async_send(asyncHandle);
         }
@@ -461,9 +460,9 @@ private:
     std::queue<WebsocketFrame *> frameQueue; // frames to send
     uv_rwlock_t frameQueueLock;              // for queue op
     bool frameQueueLockFlag = false;
-    uv_sem_t frameQueueSem;                  // how many frames in the queue
+    uv_sem_t frameQueueSem; // how many frames in the queue
     bool frameQueueSemFlag = false;
-    uv_rwlock_t frameThreadLock;             // thread lock
+    uv_rwlock_t frameThreadLock; // thread lock
     bool frameThreadLockFlag = false;
 };
 
