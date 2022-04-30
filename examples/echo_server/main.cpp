@@ -6,6 +6,7 @@ public:
     virtual void configServer(server_template::base::ServerConfigurations *configurations) override
     {
         configurations->useIpAddress(server_template::util::IpAddress("0.0.0.0", 8180));
+        configurations->setMaxConnectionCount(3);
     }
 
     virtual void configEcho(EchoProtocolConfigurations *configurations) override

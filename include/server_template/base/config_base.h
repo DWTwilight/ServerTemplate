@@ -10,6 +10,7 @@ class ServerConfigurations
 {
 public:
     virtual void useIpAddress(util::IpAddress& ipAddress) = 0;
+    virtual void setMaxConnectionCount(uint32_t value) = 0;
 };
 
 class ConfigurationBase

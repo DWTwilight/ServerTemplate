@@ -27,12 +27,13 @@ public:
         buf->len = suggestedSize;
     }
 
-    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase *config, TCPBasedProtocol::ProtocolFactory protocolFactory)
+    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase *config, TCPBasedProtocol::ProtocolFactory protocolFactory, uv_sem_t *connSem)
     {
         this->serverPipe = pipe;
         this->pipeName = pipeName;
         this->config = config;
         this->protocolFactory = protocolFactory;
+        this->connSem = connSem;
     }
 
     virtual ~TCPConnectionHandler()
@@ -73,7 +74,7 @@ public:
         return &this->clientIpAddress;
     }
 
-    virtual const uv_tcp_s* getTCPHandle() const override
+    virtual const uv_tcp_s *getTCPHandle() const override
     {
         return (uv_tcp_s *)this;
     }
@@ -152,6 +153,11 @@ public:
     uv_pipe_t *getServerPipe() const
     {
         return this->serverPipe;
+    }
+
+    uv_sem_t *getConnSem() const
+    {
+        return this->connSem;
     }
 
     void start()
@@ -252,6 +258,7 @@ private:
     uv_pipe_t *pipe;
     base::ConfigurationBase *config;
     util::IpAddress clientIpAddress;
+    uv_sem_t *connSem;
 
     TCPBasedProtocol::ProtocolFactory protocolFactory;
     TCPBasedProtocol *protocol = NULL;
