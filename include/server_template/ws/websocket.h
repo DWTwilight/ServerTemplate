@@ -39,6 +39,7 @@ public:
         log("ws dtor called");
         if (this->frameThreadLockFlag)
         {
+            uv_rwlock_wrunlock(&this->frameThreadLock);
             uv_rwlock_destroy(&this->frameThreadLock);
         }
         if (this->frameQueueLockFlag)
@@ -64,7 +65,6 @@ public:
         {
             // close frame thread
             uv_sem_post(&this->frameQueueSem);
-            uv_rwlock_wrunlock(&this->frameQueueLock);
             uv_rwlock_wrlock(&this->frameThreadLock);
         }
         this->status = ConnectionStatus::CLOSED;
@@ -230,7 +230,6 @@ public:
         this->status = ConnectionStatus::CLOSING;
         // end frame thread
         uv_sem_post(&this->frameQueueSem);
-        uv_rwlock_wrunlock(&this->frameQueueLock);
         uv_rwlock_wrlock(&this->frameThreadLock);
     }
 
@@ -269,7 +268,6 @@ public:
                 this->status = ConnectionStatus::CLOSING;
                 // end frame thread
                 uv_sem_post(&this->frameQueueSem);
-                uv_rwlock_wrunlock(&this->frameQueueLock);
                 uv_rwlock_wrlock(&this->frameThreadLock);
                 // send close frame
                 WebsocketFrame closeFrame;

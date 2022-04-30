@@ -19,7 +19,13 @@ template <typename Protocol>
 class TCPServerTemplate : public uv_tcp_t, public base::ServerBase
 {
 public:
-    virtual ~TCPServerTemplate() {}
+    virtual ~TCPServerTemplate() 
+    {
+        if (this->connectionPoolSemFlag)
+        {
+            uv_sem_destroy(this->connectionPoolSem);
+        }
+    }
 
     virtual void run(uv_loop_t *loop) override
     {
@@ -48,6 +54,7 @@ public:
         // init conn sem
         assert(this->maxConnectionCount > 0);
         uv_sem_init(&this->connectionPoolSem, this->maxConnectionCount);
+        this->connectionPoolSemFlag = true;
 
         // Start listen
         auto tcpHandle = (uv_tcp_s *)this;
@@ -183,6 +190,7 @@ private:
     util::IpAddress ipAddress;
     uint32_t maxConnectionCount = 500;
     uv_sem_t connectionPoolSem;
+    bool connectionPoolSemFlag = false;
     TCPBasedProtocol::ProtocolFactory protocolFactory =
         [](base::ConfigurationBase *config, ConnectionHandlerBase *connHandler)
     {

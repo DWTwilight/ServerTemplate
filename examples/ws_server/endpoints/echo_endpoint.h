@@ -22,7 +22,7 @@ public:
     virtual void onMessage(WebsocketSessionHandler *handler, WebsocketMessage *message) override
     {
         auto str = std::string((char*)message->payload.data(), message->payload.size());
-        handler->sendText(str, true, 4);
+        handler->sendText(str);
     }
 
     virtual void onHello(WebsocketSessionHandler *handler, WebsocketMessage *message)
