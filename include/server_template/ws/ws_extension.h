@@ -14,6 +14,8 @@ public:
         // maybe per frame in the futrue
     };
 
+    virtual ~WebsocketExtension() {}
+
     WebsocketExtension(int rsvIndex, const std::string &name, Type type)
     {
         this->rsvIndex = rsvIndex;

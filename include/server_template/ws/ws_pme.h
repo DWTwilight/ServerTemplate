@@ -9,6 +9,8 @@ SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 class WebsocketPerMessageExtension : public WebsocketExtension
 {
 public:
+    virtual ~WebsocketPerMessageExtension() {}
+
     WebsocketPerMessageExtension(int rsvIndex, const std::string &name)
         : WebsocketExtension(rsvIndex, name, WebsocketExtension::Type::PER_MESSAGE) {}
 
@@ -77,6 +79,8 @@ private:
 class PerMessageCompressionExtension : public WebsocketPerMessageExtension
 {
 public:
+    virtual ~PerMessageCompressionExtension() {}
+
     PerMessageCompressionExtension(const std::string &name)
         : WebsocketPerMessageExtension(0, name) {}
 };

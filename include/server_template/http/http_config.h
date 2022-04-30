@@ -15,6 +15,8 @@ public:
 class HttpConfig
 {
 public:
+    virtual ~HttpConfig() {}
+
     virtual void configHttp(HttpConfigurations *protocol) = 0;
 
     virtual void configUpgradeFactoryBuilder(HttpUpgradeFactoryBuilder &builder) = 0;

@@ -15,6 +15,8 @@ public:
 class ConfigurationBase
 {
 public:
+    virtual ~ConfigurationBase() {}
+
     virtual void configServer(ServerConfigurations* server) = 0;
 };
 

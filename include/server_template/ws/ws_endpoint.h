@@ -13,6 +13,8 @@ class WebsocketEndpoint
 public:
     using SubprotocolHandler = std::function<void(WebsocketEndpoint* endpoint, WebsocketSessionHandler *handler, WebsocketMessage *message)>;
 
+    virtual ~WebsocketEndpoint() {}
+
     virtual bool preAuthorize(http::HttpRequest* req, std::map<std::string, std::string> &securityAttributes)
     {
         return true;

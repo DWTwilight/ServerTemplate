@@ -15,6 +15,8 @@ public:
 class WebsocketConfig
 {
 public:
+    virtual ~WebsocketConfig() {}
+
     /**
      * @brief config basic websocket properties
      *

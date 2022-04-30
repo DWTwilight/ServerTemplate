@@ -19,6 +19,8 @@ template <typename Protocol>
 class TCPServerTemplate : public uv_tcp_t, public base::ServerBase
 {
 public:
+    virtual ~TCPServerTemplate() {}
+
     virtual void run(uv_loop_t *loop) override
     {
         this->loadConfig();
