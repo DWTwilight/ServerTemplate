@@ -62,7 +62,7 @@ public:
 
     virtual void onTCPConnectionClose() override
     {
-        log("conn close");
+        log("http conn close");
         if (this->upgrade != NULL)
         {
             upgrade->onTCPConnectionClose();

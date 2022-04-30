@@ -24,7 +24,6 @@ public:
 
     virtual void configWebsocket(server_template::ws::WebsocketConfigurations *protocol) override
     {
-
     }
 
     virtual void configEndpoint(server_template::ws::WebsocketEndpointManager &endpointManager) override
@@ -34,7 +33,6 @@ public:
 
     virtual void configPME(server_template::ws::WebsocketPMEManager &pmeManager) override
     {
-
     }
 };
 

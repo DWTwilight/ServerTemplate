@@ -21,7 +21,13 @@ public:
 
     virtual void onMessage(WebsocketSessionHandler *handler, WebsocketMessage *message) override
     {
-        handler->sendText("message recieved", true, 4);
+        auto str = std::string((char*)message->payload.data(), message->payload.size());
+        handler->sendText(str, true, 4);
+    }
+
+    virtual void onHello(WebsocketSessionHandler *handler, WebsocketMessage *message)
+    {
+
     }
 };
 

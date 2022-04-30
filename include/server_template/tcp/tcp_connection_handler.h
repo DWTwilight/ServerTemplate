@@ -65,6 +65,7 @@ public:
         uv_close((uv_handle_t *)tcpHandle,
                  [](uv_handle_t *handle)
                  {
+                     log("tcp handle close");
                      ((TCPConnectionHandler *)handle->data)->onConnectionClose();
                  });
     }
