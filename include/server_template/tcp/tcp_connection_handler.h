@@ -229,12 +229,6 @@ public:
                     uv_async_send(&asyncHandle);
                     log("async handle sent");
 
-                    // auto initLock = (uv_rwlock_t *)(this->data);
-                    // wait for connect
-                    // uv_rwlock_wrlock(initLock);
-                    // uv_rwlock_destroy(initLock);
-                    // delete initLock;
-                    log("start listen pipe");
                     r = uv_listen((uv_stream_t *)pipe, 128,
                                   [](uv_stream_t *pipe, int status)
                                   {
@@ -243,6 +237,11 @@ public:
                                       {
                                           log("start accept pipe");
                                           auto serverPipe = handler->getServerPipe();
+                                          auto initLock = (uv_rwlock_t *)(handler->data);
+                                          // wait for connect
+                                          uv_rwlock_wrlock(initLock);
+                                          uv_rwlock_destroy(initLock);
+                                          delete initLock;
                                           auto r = uv_accept(pipe, (uv_stream_t *)serverPipe);
                                           log("pipe accepted");
                                           if (r == 0)
