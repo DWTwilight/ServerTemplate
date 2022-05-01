@@ -96,7 +96,11 @@ public:
             auto r = uv_tcp_init(this->loop, client);
             if (r != 0)
             {
-                delete client;
+                uv_close((uv_handle_t *)client,
+                         [](uv_handle_t *handle)
+                         {
+                             delete handle;
+                         });
                 return;
             }
             auto tcpHandle = (uv_tcp_s *)this;

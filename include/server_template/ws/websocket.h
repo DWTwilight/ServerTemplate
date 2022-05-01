@@ -37,10 +37,6 @@ public:
     virtual ~Websocket()
     {
         log("ws dtor called");
-        if (this->frameThreadFlag)
-        {
-            uv_thread_join(&this->frameThread);
-        }
         if (this->frameQueueLockFlag)
         {
             uv_rwlock_destroy(&this->frameQueueLock);
@@ -63,9 +59,11 @@ public:
         if (this->status == ConnectionStatus::OPEN)
         {
             // close frame thread
+            this->status = ConnectionStatus::CLOSED;
             uv_sem_post(&this->frameQueueSem);
         }
         this->status = ConnectionStatus::CLOSED;
+        uv_thread_join(&this->frameThread);
         if (this->endpoint != NULL)
         {
             this->endpoint->onConnectionClose(this);
@@ -316,7 +314,7 @@ public:
      */
     void sendFramesAsync()
     {
-        while (true)
+        while (this->status == ConnectionStatus::OPEN)
         {
             // wait for a frame to send
             uv_sem_wait(&this->frameQueueSem);
