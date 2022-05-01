@@ -9,7 +9,7 @@ SERVER_TEMPLATE_BASE_NAMESPACE_BEGIN
 class ServerConfigurations
 {
 public:
-    virtual void useIpAddress(util::IpAddress& ipAddress) = 0;
+    virtual void useIpAddress(const util::IpAddress& ipAddress) = 0;
     virtual void setMaxConnectionCount(uint32_t value) = 0;
 };
 
