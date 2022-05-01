@@ -222,8 +222,8 @@ public:
                                                           delete req;
                                                       });
                                       // unlock initlock
-                                      //   auto initLock = (uv_rwlock_t *)(connHandler->data);
-                                      //   uv_rwlock_wrunlock(initLock);
+                                      auto initLock = (uv_rwlock_t *)(connHandler->data);
+                                      uv_rwlock_wrunlock(initLock);
                                       uv_close((uv_handle_t *)handle, NULL);
                                   });
                     uv_async_send(&asyncHandle);
