@@ -244,7 +244,7 @@ private:
         char ipstr[47];
         int port;
 
-        auto r = uv_tcp_getpeername(tcpHandle, (sockaddr *)&addr, &len);
+        auto r = uv_tcp_getpeername(tcpHandle, (sockaddr *)&addr, (int *)&len);
         if (r != 0)
         {
             return;

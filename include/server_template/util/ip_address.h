@@ -16,16 +16,11 @@ enum class IpAddressType
 class IpAddress
 {
 public:
-    IpAddress(std::string &address = std::string("0.0.0.0"), int port = 8080, IpAddressType type = IpAddressType::IPV4)
+    IpAddress(const std::string &address = "0.0.0.0", int port = 8080, IpAddressType type = IpAddressType::IPV4)
     {
         this->address = address;
         this->port = port;
         this->type = type;
-    }
-
-    IpAddress(const char *address, int port = 8080, IpAddressType type = IpAddressType::IPV4)
-    {
-        new (this) IpAddress(std::string(address), port, type);
     }
 
     int parseAddress(sockaddr_storage *addr)
