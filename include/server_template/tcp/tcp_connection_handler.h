@@ -27,13 +27,15 @@ public:
         buf->len = suggestedSize;
     }
 
-    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase *config, TCPBasedProtocol::ProtocolFactory protocolFactory, uv_sem_t *connSem)
+    TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase *config,
+                         TCPBasedProtocol::ProtocolFactory protocolFactory, uv_sem_t *connSem, uv_tcp_t *mainHandle)
     {
         this->serverPipe = pipe;
         this->pipeName = pipeName;
         this->config = config;
         this->protocolFactory = protocolFactory;
         this->connSem = connSem;
+        this->mainHandle = mainHandle;
     }
 
     virtual ~TCPConnectionHandler()
@@ -161,6 +163,11 @@ public:
         return this->connSem;
     }
 
+    const char *getPipeName() const
+    {
+        return this->pipeName.c_str();
+    }
+
     void start()
     {
         uv_loop_t loop;
@@ -179,9 +186,47 @@ public:
                 r = uv_pipe_bind(pipe, this->pipeName.c_str());
                 if (r == 0)
                 {
-                    auto doubleLock = (double_rwlock_t *)(this->data);
-                    uv_rwlock_wrunlock(&(doubleLock->lock1));
-                    uv_rwlock_wrlock(&(doubleLock->lock2));
+                    uv_async_t asyncHandle;
+                    asyncHandle.data = this;
+                    uv_async_init(this->mainHandle->loop, &asyncHandle,
+                                  [](uv_async_t *handle)
+                                  {
+                                      auto connHandler = (TCPConnectionHandler *)(handle->data);
+                                      auto conn = new uv_connect_t;
+                                      auto pipe = connHandler->getServerPipe();
+
+                                      conn->data = pipe;
+                                      uv_pipe_connect(conn, pipe, connHandler->getPipeName(),
+                                                      [](uv_connect_t *req, int status)
+                                                      {
+                                                          if (status == 0)
+                                                          {
+                                                              auto pipe = (uv_pipe_t *)(req->data);
+                                                              auto client = (uv_tcp_t *)(pipe->data);
+                                                              // send the client over
+                                                              auto dummyBuf = uv_buf_init(".", 1);
+                                                              auto write = new uv_write_t;
+                                                              auto r = uv_write2(write, (uv_stream_t *)pipe, &dummyBuf, 1, (uv_stream_t *)client,
+                                                                                 [](uv_write_t *req, int status)
+                                                                                 {
+                                                                                     delete req;
+                                                                                 });
+                                                          }
+                                                          delete req;
+                                                      });
+                                      // unlock initlock
+                                      auto initLock = (uv_rwlock_t *)(connHandler->data);
+                                      uv_rwlock_wrunlock(initLock);
+                                      uv_close((uv_handle_t *)handle, NULL);
+                                  });
+                    uv_async_send(&asyncHandle);
+
+                    auto initLock = (uv_rwlock_t *)(this->data);
+                    // wait for connect
+                    uv_rwlock_wrlock(initLock);
+                    uv_rwlock_destroy(initLock);
+                    delete initLock;
+
                     r = uv_listen((uv_stream_t *)pipe, 128,
                                   [](uv_stream_t *pipe, int status)
                                   {
@@ -272,6 +317,7 @@ private:
     base::ConfigurationBase *config;
     util::IpAddress clientIpAddress;
     uv_sem_t *connSem;
+    uv_tcp_t *mainHandle;
 
     TCPBasedProtocol::ProtocolFactory protocolFactory;
     TCPBasedProtocol *protocol = NULL;

@@ -112,16 +112,14 @@ public:
                 // random pipe name
                 auto pipeName = std::string(HANDLE_PIPE_NAME_PREFIX).append(util::UUID::generate(20)).append(std::to_string((size_t)pipe));
 
-                // locks to ensure pipe gets created first
-                double_rwlock_t doubleLock;
-                uv_rwlock_init(&doubleLock.lock1);
-                uv_rwlock_init(&doubleLock.lock2);
                 // start a new thread to read
-                auto connHandler = new TCPConnectionHandler(pipe, pipeName, this->config, this->protocolFactory, &this->connectionPoolSem);
-                connHandler->data = &doubleLock;
-
-                uv_rwlock_wrlock(&doubleLock.lock1);
-                uv_rwlock_wrlock(&doubleLock.lock2);
+                auto connHandler = new TCPConnectionHandler(pipe, pipeName, this->config, this->protocolFactory, &this->connectionPoolSem, client);
+                auto initLock = new uv_rwlock_t;
+                uv_rwlock_init(initLock);
+                uv_rwlock_wrlock(initLock);
+                connHandler->data = initLock;
+                client->data = connHandler;
+                pipe->data = client;
 
                 uv_thread_t thread;
                 if (uv_thread_create(
@@ -143,36 +141,6 @@ public:
                              });
                     return;
                 }
-
-                // connect to the pipe
-                client->data = connHandler;
-                pipe->data = client;
-                auto conn = new uv_connect_t;
-                conn->data = pipe;
-
-                // wait for the pipe to construct
-                uv_rwlock_wrlock(&doubleLock.lock1);
-                uv_pipe_connect(conn, pipe, pipeName.c_str(),
-                                [](uv_connect_t *req, int status)
-                                {
-                                    if (status == 0)
-                                    {
-                                        auto pipe = (uv_pipe_t *)(req->data);
-                                        auto client = (uv_tcp_t *)(pipe->data);
-                                        // send the client over
-                                        auto dummyBuf = uv_buf_init(".", 1);
-                                        auto write = new uv_write_t;
-                                        auto r = uv_write2(write, (uv_stream_t *)pipe, &dummyBuf, 1, (uv_stream_t *)client,
-                                                           [](uv_write_t *req, int status)
-                                                           {
-                                                               delete req;
-                                                           });
-                                    }
-                                    delete req;
-                                });
-                uv_rwlock_wrunlock(&doubleLock.lock2);
-                uv_rwlock_destroy(&doubleLock.lock1);
-                uv_rwlock_destroy(&doubleLock.lock2);
             }
             else
             {

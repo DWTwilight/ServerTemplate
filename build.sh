@@ -1,0 +1,1 @@
+sudo cmake --build ./build/ --config Release --target ws_server
