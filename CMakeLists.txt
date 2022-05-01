@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.12.0)
 
 project(ServerTemplate VERSION 1.0.0)
 
