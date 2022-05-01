@@ -215,7 +215,19 @@ public:
                         this->closePipe();
                     }
                 }
+                else
+                {
+                    this->closePipe();
+                }
             }
+        }
+        else
+        {
+            uv_close((uv_handle_t *)this->pipe,
+                     [](uv_handle_t *handle)
+                     {
+                         delete handle;
+                     });
         }
 
         uv_run(&loop, UV_RUN_DEFAULT);

@@ -37,10 +37,9 @@ public:
     virtual ~Websocket()
     {
         log("ws dtor called");
-        if (this->frameThreadLockFlag)
+        if (this->frameThreadFlag)
         {
-            uv_rwlock_wrunlock(&this->frameThreadLock);
-            uv_rwlock_destroy(&this->frameThreadLock);
+            uv_thread_join(&this->frameThread);
         }
         if (this->frameQueueLockFlag)
         {
@@ -65,7 +64,6 @@ public:
         {
             // close frame thread
             uv_sem_post(&this->frameQueueSem);
-            uv_rwlock_wrlock(&this->frameThreadLock);
         }
         this->status = ConnectionStatus::CLOSED;
         if (this->endpoint != NULL)
@@ -163,24 +161,16 @@ public:
         this->frameQueueSemFlag = true;
         uv_rwlock_init(&this->frameQueueLock);
         this->frameQueueLockFlag = true;
-        uv_rwlock_init(&this->frameThreadLock);
-        this->frameThreadLockFlag = true;
 
-        // start writing thread
-        auto workReq = new uv_work_t;
-        workReq->data = this;
-        uv_queue_work(
-            this->connHandler->getTCPHandle()->loop, workReq,
-            [](uv_work_t *req)
-            {
-                auto handler = (Websocket *)(req->data);
-                handler->sendFramesAsync();
-            },
-            [](uv_work_t *req, int status)
-            {
-                log("message thread end");
-                delete req;
-            });
+        // start frame thread
+        this->frameThreadFlag = uv_thread_create(
+                                    &this->frameThread,
+                                    [](void *arg)
+                                    {
+                                        auto handler = (Websocket *)arg;
+                                        handler->sendFramesAsync();
+                                    },
+                                    this) == 0;
 
         // conn open cb
         this->endpoint->onConnectionOpen(this);
@@ -230,7 +220,6 @@ public:
         this->status = ConnectionStatus::CLOSING;
         // end frame thread
         uv_sem_post(&this->frameQueueSem);
-        uv_rwlock_wrlock(&this->frameThreadLock);
     }
 
     virtual void sendMessage(util::ByteArray &bytes, WebsocketMessage::Type type, bool fragmentation = false, size_t mtu = UINT16_MAX) override
@@ -268,7 +257,6 @@ public:
                 this->status = ConnectionStatus::CLOSING;
                 // end frame thread
                 uv_sem_post(&this->frameQueueSem);
-                uv_rwlock_wrlock(&this->frameThreadLock);
                 // send close frame
                 WebsocketFrame closeFrame;
                 WebsocketFrameBuilder::buildCloseFrame(closeFrame);
@@ -328,8 +316,6 @@ public:
      */
     void sendFramesAsync()
     {
-        // lock the thread lock
-        uv_rwlock_wrlock(&this->frameThreadLock);
         while (true)
         {
             // wait for a frame to send
@@ -337,7 +323,7 @@ public:
             log("after wait");
             if (this->status != ConnectionStatus::OPEN)
             {
-                break;
+                return;
             }
             // acquire the frame to send
             uv_rwlock_wrlock(&this->frameQueueLock);
@@ -361,8 +347,6 @@ public:
                           });
             uv_async_send(asyncHandle);
         }
-        // unlock thread lock
-        uv_rwlock_wrunlock(&this->frameThreadLock);
     }
 
     void sendControlFrame(WebsocketFrame *frame)
@@ -462,8 +446,8 @@ private:
     bool frameQueueLockFlag = false;
     uv_sem_t frameQueueSem; // how many frames in the queue
     bool frameQueueSemFlag = false;
-    uv_rwlock_t frameThreadLock; // thread lock
-    bool frameThreadLockFlag = false;
+    uv_thread_t frameThread;
+    bool frameThreadFlag = false;
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END

@@ -10,16 +10,16 @@
 SERVER_TEMPLATE_TCP_NAMESPACE_BEGIN
 
 #ifdef _WIN32
-#define HANDLE_PIPE_NAME_PREFIX "\\\\?\\pipe\\handlePipe-"
+#define HANDLE_PIPE_NAME_PREFIX "\\\\?\\pipe\\hp-"
 #else
-#define HANDLE_PIPE_NAME_PREFIX "/tmp/handlePipe-"
+#define HANDLE_PIPE_NAME_PREFIX "/tmp/hp-"
 #endif
 
 template <typename Protocol>
 class TCPServerTemplate : public uv_tcp_t, public base::ServerBase
 {
 public:
-    virtual ~TCPServerTemplate() 
+    virtual ~TCPServerTemplate()
     {
         if (this->connectionPoolSemFlag)
         {
@@ -89,7 +89,8 @@ public:
     {
         log("on connection");
         // Accept connection
-        if (uv_sem_trywait(&this->connectionPoolSem) == 0)
+        // uv_sem_trywait(&this->connectionPoolSem) == 0
+        if (true)
         {
             auto *client = new uv_tcp_t;
             auto r = uv_tcp_init(this->loop, client);
@@ -105,7 +106,7 @@ public:
                 // create a pipe to send client handle
                 auto pipe = new uv_pipe_t;
                 // random pipe name
-                auto pipeName = std::string(HANDLE_PIPE_NAME_PREFIX).append(util::UUID::generate(8));
+                auto pipeName = std::string(HANDLE_PIPE_NAME_PREFIX).append(util::UUID::generate(20)).append(std::to_string((size_t)pipe));
 
                 // locks to ensure pipe gets created first
                 double_rwlock_t doubleLock;
@@ -117,22 +118,27 @@ public:
 
                 uv_rwlock_wrlock(&doubleLock.lock1);
                 uv_rwlock_wrlock(&doubleLock.lock2);
-                auto req = new uv_work_t;
-                req->data = connHandler;
-                uv_queue_work(
-                    this->loop, req,
-                    [](uv_work_t *req)
-                    {
-                        auto handler = (TCPConnectionHandler *)(req->data);
-                        handler->start();
-                        req->data = handler->getConnSem();
-                        delete handler;
-                    },
-                    [](uv_work_t *req, int status)
-                    {
-                        uv_sem_post((uv_sem_t*)req->data);
-                        delete req;
-                    });
+
+                uv_thread_t thread;
+                if (uv_thread_create(
+                        &thread,
+                        [](void *arg)
+                        {
+                            auto handler = (TCPConnectionHandler *)(arg);
+                            handler->start();
+                            auto sem = handler->getConnSem();
+                            delete handler;
+                            // uv_sem_post(sem);
+                        },
+                        connHandler) != 0)
+                {
+                    uv_close((uv_handle_t *)client,
+                             [](uv_handle_t *handle)
+                             {
+                                 delete handle;
+                             });
+                    return;
+                }
 
                 // connect to the pipe
                 client->data = connHandler;

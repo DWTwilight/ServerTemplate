@@ -20,7 +20,7 @@ public:
     bool isUpgrade()
     {
         auto conn = headerMap.getValueOrDefault(CONNECTION_HEADER, "");
-        return conn == UPGRADE_HEADER;
+        return conn == UPGRADE_HEADER || conn == "upgrade";
     }
 };
 

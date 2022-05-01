@@ -11,6 +11,7 @@ public:
     virtual void configServer(server_template::base::ServerConfigurations *server) override
     {
         server->useIpAddress(server_template::util::IpAddress("0.0.0.0", 8080));
+        server->setMaxConnectionCount(10000);
     }
 
     virtual void configHttp(server_template::http::HttpConfigurations *protocol) override
@@ -38,7 +39,7 @@ public:
 
 int main()
 {
-    server_template::logDebug = true;
+    // server_template::logDebug = true;
     auto loop = uv_default_loop();
 
     server_template::tcp::TCPServerTemplate<server_template::http::Http> httpServer;

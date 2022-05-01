@@ -91,6 +91,7 @@ private:
 
         if (req->isUpgrade())
         {
+            log("on upgarde");
             onUpgrade(req);
         }
         else

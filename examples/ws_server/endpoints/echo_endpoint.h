@@ -21,12 +21,7 @@ public:
 
     virtual void onMessage(WebsocketSessionHandler *handler, WebsocketMessage *message) override
     {
-        auto str = std::string((char*)message->payload.data(), message->payload.size());
-        if (str == "close")
-        {
-            handler->closeConnection();
-        }
-        handler->sendText(str, true, 4);
+        handler->sendMessage(message->payload, server_template::ws::WebsocketMessage::Type::TEXT);
     }
 
     virtual void onHello(WebsocketSessionHandler *handler, WebsocketMessage *message)
