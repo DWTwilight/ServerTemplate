@@ -170,20 +170,24 @@ public:
 
     void start()
     {
+        log("conn Start");
         uv_loop_t loop;
         this->loop = &loop;
 
         uv_loop_init(&loop);
 
         auto r = uv_pipe_init(&loop, this->serverPipe, 1);
+        log("server pipe inited");
         if (r == 0)
         {
             this->pipe = new uv_pipe_t;
             pipe->data = this;
             r = uv_pipe_init(&loop, pipe, 0);
+            log("client pipe inited");
             if (r == 0)
             {
                 r = uv_pipe_bind(pipe, this->pipeName.c_str());
+                log("pipe binded");
                 if (r == 0)
                 {
                     uv_async_t asyncHandle;
@@ -220,13 +224,14 @@ public:
                                       uv_close((uv_handle_t *)handle, NULL);
                                   });
                     uv_async_send(&asyncHandle);
+                    log("async handle sent");
 
                     auto initLock = (uv_rwlock_t *)(this->data);
                     // wait for connect
                     uv_rwlock_wrlock(initLock);
                     uv_rwlock_destroy(initLock);
                     delete initLock;
-
+                    log("start listen pipe");
                     r = uv_listen((uv_stream_t *)pipe, 128,
                                   [](uv_stream_t *pipe, int status)
                                   {
