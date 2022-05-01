@@ -75,7 +75,7 @@ public:
         }
     }
 
-    virtual void useIpAddress(util::IpAddress &ipAddress) override
+    virtual void useIpAddress(const util::IpAddress &ipAddress) override
     {
         this->ipAddress = ipAddress;
     }
