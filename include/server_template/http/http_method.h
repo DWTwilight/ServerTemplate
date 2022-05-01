@@ -3,6 +3,7 @@
 
 #include "http_ns.h"
 #include <string>
+#include <cstring>
 
 SERVER_TEMPLATE_HTTP_NAMESPACE_BEGIN
 
