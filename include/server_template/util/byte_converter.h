@@ -2,6 +2,7 @@
 #define SERVER_TEMPLATE_UTIL_BYTE_CONVERTER_H_
 
 #include "byte_array.h"
+#include <algorithm>
 
 SERVER_TEMPLATE_UTIL_NAMESPACE_BEGIN
 
