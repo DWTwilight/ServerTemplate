@@ -217,12 +217,13 @@ public:
                                                                                  {
                                                                                      delete req;
                                                                                  });
+                                                              log("handle sent");
                                                           }
                                                           delete req;
                                                       });
                                       // unlock initlock
-                                    //   auto initLock = (uv_rwlock_t *)(connHandler->data);
-                                    //   uv_rwlock_wrunlock(initLock);
+                                      //   auto initLock = (uv_rwlock_t *)(connHandler->data);
+                                      //   uv_rwlock_wrunlock(initLock);
                                       uv_close((uv_handle_t *)handle, NULL);
                                   });
                     uv_async_send(&asyncHandle);
@@ -240,8 +241,10 @@ public:
                                       auto handler = (TCPConnectionHandler *)(pipe->data);
                                       if (status == 0)
                                       {
+                                          log("start accept pipe");
                                           auto serverPipe = handler->getServerPipe();
                                           auto r = uv_accept(pipe, (uv_stream_t *)serverPipe);
+                                          log("pipe accepted");
                                           if (r == 0)
                                           {
                                               r = uv_read_start((uv_stream_t *)serverPipe, allocBuffer,
