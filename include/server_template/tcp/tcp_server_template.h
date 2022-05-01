@@ -114,10 +114,10 @@ public:
 
                 // start a new thread to read
                 auto connHandler = new TCPConnectionHandler(pipe, pipeName, this->config, this->protocolFactory, &this->connectionPoolSem, client);
-                auto initLock = new uv_rwlock_t;
-                uv_rwlock_init(initLock);
-                uv_rwlock_wrlock(initLock);
-                connHandler->data = initLock;
+                // auto initLock = new uv_rwlock_t;
+                // uv_rwlock_init(initLock);
+                // uv_rwlock_wrlock(initLock);
+                // connHandler->data = initLock;
                 client->data = connHandler;
                 pipe->data = client;
 

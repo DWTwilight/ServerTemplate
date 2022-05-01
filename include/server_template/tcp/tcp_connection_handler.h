@@ -186,6 +186,8 @@ public:
             log("client pipe inited");
             if (r == 0)
             {
+                uv_fs_t req;
+                uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
                 r = uv_pipe_bind(pipe, this->pipeName.c_str());
                 log("pipe binded");
                 if (r == 0)
@@ -219,18 +221,18 @@ public:
                                                           delete req;
                                                       });
                                       // unlock initlock
-                                      auto initLock = (uv_rwlock_t *)(connHandler->data);
-                                      uv_rwlock_wrunlock(initLock);
+                                    //   auto initLock = (uv_rwlock_t *)(connHandler->data);
+                                    //   uv_rwlock_wrunlock(initLock);
                                       uv_close((uv_handle_t *)handle, NULL);
                                   });
                     uv_async_send(&asyncHandle);
                     log("async handle sent");
 
-                    auto initLock = (uv_rwlock_t *)(this->data);
+                    // auto initLock = (uv_rwlock_t *)(this->data);
                     // wait for connect
-                    uv_rwlock_wrlock(initLock);
-                    uv_rwlock_destroy(initLock);
-                    delete initLock;
+                    // uv_rwlock_wrlock(initLock);
+                    // uv_rwlock_destroy(initLock);
+                    // delete initLock;
                     log("start listen pipe");
                     r = uv_listen((uv_stream_t *)pipe, 128,
                                   [](uv_stream_t *pipe, int status)
@@ -282,6 +284,8 @@ public:
 
         uv_run(&loop, UV_RUN_DEFAULT);
         uv_loop_close(&loop);
+        uv_fs_t req;
+        uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
         log("conn end");
     }
 
