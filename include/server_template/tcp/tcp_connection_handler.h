@@ -12,12 +12,6 @@ typedef struct
     uv_buf_t buf;
 } write_req_t;
 
-typedef struct
-{
-    uv_rwlock_t lock1;
-    uv_rwlock_t lock2;
-} double_rwlock_t;
-
 class TCPConnectionHandler : public uv_tcp_t, public ConnectionHandlerBase
 {
 public:

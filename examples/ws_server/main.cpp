@@ -10,7 +10,7 @@ class Configuration : public server_template::base::ConfigurationBase,
 public:
     virtual void configServer(server_template::base::ServerConfigurations *server) override
     {
-        server->useIpAddress(server_template::util::IpAddress("0.0.0.0", 8080));
+        server->useIpAddress(server_template::util::IpAddress("0.0.0.0", 5001));
         server->setMaxConnectionCount(10000);
     }
 
