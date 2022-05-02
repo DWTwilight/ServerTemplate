@@ -104,7 +104,6 @@ public:
                 r = uv_accept(stream, (uv_stream_t *)tcpHandle);
                 if (r == 0)
                 {
-                    this->closePipe();
                     this->setClientIpAddress();
                     this->protocol = this->protocolFactory(this->config, this);
                     this->protocol->onTCPConnectionOpen();
@@ -126,12 +125,11 @@ public:
                 else
                 {
                     uv_close((uv_handle_t *)tcpHandle, NULL);
-                    this->closePipe();
                 }
             }
             else
             {
-                this->closePipe();
+                uv_close((uv_handle_t *)tcpHandle, NULL);
             }
         }
         delete buf->base;
@@ -151,6 +149,8 @@ public:
                  {
                      delete handle;
                  });
+        uv_fs_t req;
+        uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
     }
 
     uv_pipe_t *getServerPipe() const
@@ -192,67 +192,55 @@ public:
                 log("pipe binded");
                 if (r == 0)
                 {
-                    uv_async_t asyncHandle;
-                    asyncHandle.data = this;
-                    uv_async_init(this->mainHandle->loop, &asyncHandle,
-                                  [](uv_async_t *handle)
-                                  {
-                                      auto connHandler = (TCPConnectionHandler *)(handle->data);
-                                      auto conn = new uv_connect_t;
-                                      auto pipe = connHandler->getServerPipe();
-
-                                      conn->data = pipe;
-                                      uv_pipe_connect(conn, pipe, connHandler->getPipeName(),
-                                                      [](uv_connect_t *req, int status)
-                                                      {
-                                                          if (status == 0)
-                                                          {
-                                                              auto pipe = (uv_pipe_t *)(req->data);
-                                                              auto client = (uv_tcp_t *)(pipe->data);
-                                                              // send the client over
-                                                              auto dummyBuf = uv_buf_init(".", 1);
-                                                              auto write = new uv_write_t;
-                                                              auto r = uv_write2(write, (uv_stream_t *)pipe, &dummyBuf, 1, (uv_stream_t *)client,
-                                                                                 [](uv_write_t *req, int status)
-                                                                                 {
-                                                                                     delete req;
-                                                                                 });
-                                                              log("handle sent");
-                                                          }
-                                                          delete req;
-                                                      });
-                                      // unlock initlock
-                                      auto initLock = (uv_rwlock_t *)(connHandler->data);
-                                      uv_rwlock_wrunlock(initLock);
-                                      uv_close((uv_handle_t *)handle, NULL);
-                                  });
-                    uv_async_send(&asyncHandle);
-                    log("async handle sent");
+                    uv_connect_t conn;
+                    conn.data = serverPipe;
+                    uv_pipe_connect(&conn, serverPipe, this->getPipeName(),
+                                    [](uv_connect_t *req, int status)
+                                    {
+                                        log("on pipe connected");
+                                        if (status == 0)
+                                        {
+                                            auto pipe = (uv_pipe_t *)(req->data);
+                                            auto client = (uv_tcp_t *)(pipe->data);
+                                            // send the client over
+                                            auto dummyBuf = uv_buf_init(".", 1);
+                                            auto write = new uv_write_t;
+                                            auto r = uv_write2(write, (uv_stream_t *)pipe, &dummyBuf, 1, (uv_stream_t *)client,
+                                                               [](uv_write_t *req, int status)
+                                                               {
+                                                                   delete req;
+                                                               });
+                                            log("handle sent");
+                                        }
+                                    });
+                    log("pipe connected");
 
                     r = uv_listen((uv_stream_t *)pipe, 128,
                                   [](uv_stream_t *pipe, int status)
                                   {
+                                      log("pipe listening");
                                       auto handler = (TCPConnectionHandler *)(pipe->data);
                                       if (status == 0)
                                       {
                                           log("start accept pipe");
                                           auto serverPipe = handler->getServerPipe();
-                                          auto initLock = (uv_rwlock_t *)(handler->data);
-                                          // wait for connect
-                                          uv_rwlock_wrlock(initLock);
-                                          uv_rwlock_destroy(initLock);
-                                          delete initLock;
                                           auto r = uv_accept(pipe, (uv_stream_t *)serverPipe);
                                           log("pipe accepted");
                                           if (r == 0)
                                           {
+                                              log("read start");
                                               r = uv_read_start((uv_stream_t *)serverPipe, allocBuffer,
                                                                 [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
                                                                 {
                                                                     auto client = (uv_tcp_t *)(stream->data);
                                                                     auto connHandler = (TCPConnectionHandler *)(client->data);
                                                                     connHandler->onPipeRead(stream, nread, buf);
+                                                                    connHandler->closePipe();
                                                                 });
+                                              if (r != 0)
+                                              {
+                                                  handler->closePipe();
+                                              }
                                           }
                                           else
                                           {
@@ -274,20 +262,23 @@ public:
                     this->closePipe();
                 }
             }
+            else
+            {
+                this->closePipe();
+            }
         }
         else
         {
-            uv_close((uv_handle_t *)this->pipe,
+            uv_close((uv_handle_t *)this->serverPipe,
                      [](uv_handle_t *handle)
                      {
                          delete handle;
+                         delete handle->data;
                      });
         }
 
         uv_run(&loop, UV_RUN_DEFAULT);
         uv_loop_close(&loop);
-        uv_fs_t req;
-        uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
         log("conn end");
     }
 
