@@ -1,6 +1,6 @@
-[submodule ".\\external\\jsoncpp"]
-	path = .\\external\\jsoncpp
+[submodule "external/jsoncpp"]
+	path = external/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
-[submodule ".\\external\\libuv"]
-	path = .\\external\\libuv
+[submodule "external/libuv"]
+	path = external/libuv
 	url = https://github.com/libuv/libuv.git
