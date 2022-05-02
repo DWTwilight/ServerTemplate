@@ -206,10 +206,10 @@ public:
                                           log("start accept pipe");
                                           auto serverPipe = handler->getServerPipe();
                                           auto r = uv_accept(pipe, (uv_stream_t *)serverPipe);
-                                          log("pipe accepted");
                                           if (r == 0)
                                           {
-                                              log("read start");
+                                              log("pipe accepted");
+
                                               r = uv_read_start((uv_stream_t *)serverPipe, allocBuffer,
                                                                 [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
                                                                 {
@@ -218,6 +218,7 @@ public:
                                                                     connHandler->onPipeRead(stream, nread, buf);
                                                                     connHandler->closePipe();
                                                                 });
+                                              log("read start");
                                               if (r != 0)
                                               {
                                                   handler->closePipe();
@@ -225,6 +226,7 @@ public:
                                           }
                                           else
                                           {
+                                              printf("accept failed, error %d\n", r);
                                               handler->closePipe();
                                           }
                                       }
