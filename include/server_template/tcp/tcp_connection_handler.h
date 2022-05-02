@@ -238,9 +238,9 @@ public:
                     if (r == 0)
                     {
                         log("start to connect pipe");
-                        uv_connect_t conn;
-                        conn.data = serverPipe;
-                        uv_pipe_connect(&conn, serverPipe, this->getPipeName(),
+                        auto conn = new uv_connect_t;
+                        conn->data = serverPipe;
+                        uv_pipe_connect(conn, serverPipe, this->getPipeName(),
                                         [](uv_connect_t *req, int status)
                                         {
                                             log("on pipe connected");
@@ -258,11 +258,7 @@ public:
                                                                    });
                                                 log("handle sent");
                                             }
-                                            else
-                                            {
-                                                auto handler = (TCPConnectionHandler *)(client->data);
-                                                handler->closePipe();
-                                            }
+                                            delete req;
                                         });
                         log("pipe connected");
                     }
