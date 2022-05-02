@@ -38,6 +38,16 @@ public:
         }
     }
 
+    static void buildCloseFrame(WebsocketFrame &frame, const WebsocketFrame *closeFrame, bool mask = false)
+    {
+        frame.init(WebsocketOpcode::CONNECTION_CLOSE);
+        frame.payload = closeFrame->payload;
+        if (mask)
+        {
+            frame.maskPayload();
+        }
+    }
+
     static void buildPingFrame(WebsocketFrame &frame, const util::ByteArray &payload, bool mask = false)
     {
         frame.init(WebsocketOpcode::PING);

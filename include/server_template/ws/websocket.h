@@ -264,7 +264,7 @@ public:
                 uv_sem_post(&this->frameQueueSem);
                 // send close frame
                 WebsocketFrame closeFrame;
-                WebsocketFrameBuilder::buildCloseFrame(closeFrame);
+                WebsocketFrameBuilder::buildCloseFrame(closeFrame, frame);
                 this->sendControlFrame(&closeFrame);
                 // close tcp connection
                 this->connHandler->closeConnection();
