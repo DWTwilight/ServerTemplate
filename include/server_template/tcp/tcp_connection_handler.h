@@ -226,7 +226,7 @@ public:
                                           }
                                           else
                                           {
-                                              printf("accept failed, error %d\n", r);
+                                              log(uv_strerror(r));
                                               handler->closePipe();
                                           }
                                       }
