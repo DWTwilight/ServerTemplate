@@ -28,13 +28,12 @@ public:
     }
 
     TCPConnectionHandler(uv_pipe_t *pipe, const std::string &pipeName, base::ConfigurationBase *config,
-                         TCPBasedProtocol::ProtocolFactory protocolFactory, uv_sem_t *connSem, uv_tcp_t *mainHandle)
+                         TCPBasedProtocol::ProtocolFactory protocolFactory, uv_tcp_t *mainHandle)
     {
         this->serverPipe = pipe;
         this->pipeName = pipeName;
         this->config = config;
         this->protocolFactory = protocolFactory;
-        this->connSem = connSem;
         this->mainHandle = mainHandle;
     }
 
@@ -173,11 +172,6 @@ public:
         return this->serverPipe;
     }
 
-    uv_sem_t *getConnSem() const
-    {
-        return this->connSem;
-    }
-
     const char *getPipeName() const
     {
         return this->pipeName.c_str();
@@ -218,7 +212,7 @@ public:
                 log("pipe binded");
                 if (r == 0)
                 {
-                    r = uv_listen((uv_stream_t *)pipe, 128,
+                    r = uv_listen((uv_stream_t *)pipe, 2,
                                   [](uv_stream_t *pipe, int status)
                                   {
                                       log("pipe listening");
@@ -347,7 +341,6 @@ private:
     uv_pipe_t *clientPipe;
     base::ConfigurationBase *config;
     util::IpAddress clientIpAddress;
-    uv_sem_t *connSem;
     uv_tcp_t *mainHandle;
     bool serverPipeFlag = false;
     bool clientPipeFlag = false;

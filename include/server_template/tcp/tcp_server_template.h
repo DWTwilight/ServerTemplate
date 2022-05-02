@@ -19,13 +19,7 @@ template <typename Protocol>
 class TCPServerTemplate : public uv_tcp_t, public base::ServerBase
 {
 public:
-    virtual ~TCPServerTemplate()
-    {
-        if (this->connectionPoolSemFlag)
-        {
-            uv_sem_destroy(&this->connectionPoolSem);
-        }
-    }
+    virtual ~TCPServerTemplate() {}
 
     virtual void run(uv_loop_t *loop) override
     {
@@ -51,15 +45,12 @@ public:
         {
             abort();
         }
-        // init conn sem
         assert(this->maxConnectionCount > 0);
-        uv_sem_init(&this->connectionPoolSem, this->maxConnectionCount);
-        this->connectionPoolSemFlag = true;
 
         // Start listen
         auto tcpHandle = (uv_tcp_s *)this;
         tcpHandle->data = this;
-        r = uv_listen((uv_stream_t *)tcpHandle, 512,
+        r = uv_listen((uv_stream_t *)tcpHandle, this->maxConnectionCount,
                       [](uv_stream_t *server, int status)
                       {
                           if (status < 0)
@@ -89,12 +80,41 @@ public:
     {
         log("on connection");
         // Accept connection
-        // uv_sem_trywait(&this->connectionPoolSem) == 0
-        if (true)
+        auto *client = new uv_tcp_t;
+        auto r = uv_tcp_init(this->loop, client);
+        if (r != 0)
         {
-            auto *client = new uv_tcp_t;
-            auto r = uv_tcp_init(this->loop, client);
-            if (r != 0)
+            uv_close((uv_handle_t *)client,
+                     [](uv_handle_t *handle)
+                     {
+                         delete handle;
+                     });
+            return;
+        }
+        auto tcpHandle = (uv_tcp_s *)this;
+        r = uv_accept((uv_stream_t *)tcpHandle, (uv_stream_t *)client);
+        if (r == 0)
+        {
+            // create a pipe to send client handle
+            auto pipe = new uv_pipe_t;
+            // random pipe name
+            auto pipeName = std::string(HANDLE_PIPE_NAME_PREFIX).append(util::UUID::generate(20)).append(std::to_string((size_t)pipe));
+
+            // start a new thread to read
+            auto connHandler = new TCPConnectionHandler(pipe, pipeName, this->config, this->protocolFactory, client);
+            client->data = connHandler;
+            pipe->data = client;
+
+            uv_thread_t thread;
+            if (uv_thread_create(
+                    &thread,
+                    [](void *arg)
+                    {
+                        auto handler = (TCPConnectionHandler *)(arg);
+                        handler->start();
+                        delete handler;
+                    },
+                    connHandler) != 0)
             {
                 uv_close((uv_handle_t *)client,
                          [](uv_handle_t *handle)
@@ -103,54 +123,15 @@ public:
                          });
                 return;
             }
-            auto tcpHandle = (uv_tcp_s *)this;
-            r = uv_accept((uv_stream_t *)tcpHandle, (uv_stream_t *)client);
-            if (r == 0)
-            {
-                // create a pipe to send client handle
-                auto pipe = new uv_pipe_t;
-                // random pipe name
-                auto pipeName = std::string(HANDLE_PIPE_NAME_PREFIX).append(util::UUID::generate(20)).append(std::to_string((size_t)pipe));
-
-                // start a new thread to read
-                auto connHandler = new TCPConnectionHandler(pipe, pipeName, this->config, this->protocolFactory, &this->connectionPoolSem, client);
-                client->data = connHandler;
-                pipe->data = client;
-
-                uv_thread_t thread;
-                if (uv_thread_create(
-                        &thread,
-                        [](void *arg)
-                        {
-                            auto handler = (TCPConnectionHandler *)(arg);
-                            handler->start();
-                            auto sem = handler->getConnSem();
-                            delete handler;
-                            // uv_sem_post(sem);
-                        },
-                        connHandler) != 0)
-                {
-                    uv_close((uv_handle_t *)client,
-                             [](uv_handle_t *handle)
-                             {
-                                 delete handle;
-                             });
-                    return;
-                }
-            }
-            else
-            {
-                printf("error accpet\n");
-                uv_close((uv_handle_t *)client,
-                         [](uv_handle_t *handle)
-                         {
-                             delete handle;
-                         });
-            }
         }
         else
         {
-            log("connection refused");
+            printf("error accpet\n");
+            uv_close((uv_handle_t *)client,
+                     [](uv_handle_t *handle)
+                     {
+                         delete handle;
+                     });
         }
     }
 
@@ -162,9 +143,7 @@ private:
     }
 
     util::IpAddress ipAddress;
-    uint32_t maxConnectionCount = 500;
-    uv_sem_t connectionPoolSem;
-    bool connectionPoolSemFlag = false;
+    uint32_t maxConnectionCount = 512;
     TCPBasedProtocol::ProtocolFactory protocolFactory =
         [](base::ConfigurationBase *config, ConnectionHandlerBase *connHandler)
     {
