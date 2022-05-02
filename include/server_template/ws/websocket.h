@@ -63,7 +63,6 @@ public:
             uv_sem_post(&this->frameQueueSem);
         }
         this->status = ConnectionStatus::CLOSED;
-        uv_thread_join(&this->frameThread);
         if (this->endpoint != NULL)
         {
             this->endpoint->onConnectionClose(this);
@@ -160,15 +159,23 @@ public:
         uv_rwlock_init(&this->frameQueueLock);
         this->frameQueueLockFlag = true;
 
-        // start frame thread
-        this->frameThreadFlag = uv_thread_create(
-                                    &this->frameThread,
-                                    [](void *arg)
-                                    {
-                                        auto handler = (Websocket *)arg;
-                                        handler->sendFramesAsync();
-                                    },
-                                    this) == 0;
+        auto workReq = new uv_work_t;
+        workReq->data = this;
+        if (uv_queue_work(
+                this->connHandler->getTCPHandle()->loop, workReq,
+                [](uv_work_t *req)
+                {
+                    auto handler = (Websocket *)(req->data);
+                    handler->sendFramesAsync();
+                },
+                [](uv_work_t *req, int status)
+                {
+                    delete req;
+                }) != 0)
+        {
+            http::HttpResponse::buildBadRequest(response, "Bad Request", "text/plain");
+            return;
+        }
 
         // conn open cb
         this->endpoint->onConnectionOpen(this);
@@ -444,8 +451,6 @@ private:
     bool frameQueueLockFlag = false;
     uv_sem_t frameQueueSem; // how many frames in the queue
     bool frameQueueSemFlag = false;
-    uv_thread_t frameThread;
-    bool frameThreadFlag = false;
 };
 
 SERVER_TEMPLATE_WS_NAMESPACE_END

@@ -105,24 +105,20 @@ public:
             client->data = connHandler;
             pipe->data = client;
 
-            uv_thread_t thread;
-            if (uv_thread_create(
-                    &thread,
-                    [](void *arg)
-                    {
-                        auto handler = (TCPConnectionHandler *)(arg);
-                        handler->start();
-                        delete handler;
-                    },
-                    connHandler) != 0)
-            {
-                uv_close((uv_handle_t *)client,
-                         [](uv_handle_t *handle)
-                         {
-                             delete handle;
-                         });
-                return;
-            }
+            auto workReq = new uv_work_t;
+            workReq->data = connHandler;
+            uv_queue_work(
+                this->loop, workReq,
+                [](uv_work_t *req)
+                {
+                    auto handler = (TCPConnectionHandler *)(req->data);
+                    handler->start();
+                    delete handler;
+                },
+                [](uv_work_t *req, int status)
+                {
+                    delete req;
+                });
         }
         else
         {
