@@ -137,20 +137,24 @@ public:
 
     void closePipe()
     {
-        log("close pipe");
-        uv_close((uv_handle_t *)this->serverPipe,
-                 [](uv_handle_t *handle)
-                 {
-                     delete handle->data;
-                     delete handle;
-                 });
-        uv_close((uv_handle_t *)this->pipe,
-                 [](uv_handle_t *handle)
-                 {
-                     delete handle;
-                 });
-        uv_fs_t req;
-        uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
+        if (!closeFlag)
+        {
+            closeFlag = true;
+            log("close pipe");
+            uv_close((uv_handle_t *)this->serverPipe,
+                     [](uv_handle_t *handle)
+                     {
+                         delete handle->data;
+                         delete handle;
+                     });
+            uv_close((uv_handle_t *)this->pipe,
+                     [](uv_handle_t *handle)
+                     {
+                         delete handle;
+                     });
+            uv_fs_t req;
+            uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
+        }
     }
 
     uv_pipe_t *getServerPipe() const
@@ -328,6 +332,7 @@ private:
     util::IpAddress clientIpAddress;
     uv_sem_t *connSem;
     uv_tcp_t *mainHandle;
+    bool closeFlag = false;
 
     TCPBasedProtocol::ProtocolFactory protocolFactory;
     TCPBasedProtocol *protocol = NULL;
