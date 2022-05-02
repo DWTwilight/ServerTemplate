@@ -137,24 +137,35 @@ public:
 
     void closePipe()
     {
-        if (!closeFlag)
+        log("close pipe");
+        if (this->serverPipeFlag)
         {
-            closeFlag = true;
-            log("close pipe");
             uv_close((uv_handle_t *)this->serverPipe,
                      [](uv_handle_t *handle)
                      {
                          delete handle->data;
                          delete handle;
                      });
+        }
+        if (this->pipeFlag)
+        {
             uv_close((uv_handle_t *)this->pipe,
                      [](uv_handle_t *handle)
                      {
                          delete handle;
                      });
-            uv_fs_t req;
-            uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
         }
+        if (this->clientPipeFlag)
+        {
+            uv_close((uv_handle_t *)this->clientPipe,
+                     [](uv_handle_t *handle)
+                     {
+                         delete handle;
+                     });
+        }
+
+        uv_fs_t req;
+        uv_fs_unlink(this->loop, &req, this->pipeName.c_str(), NULL);
     }
 
     uv_pipe_t *getServerPipe() const
@@ -172,6 +183,15 @@ public:
         return this->pipeName.c_str();
     }
 
+    uv_pipe_t *getClientPipe()
+    {
+        this->clientPipe = new uv_pipe_t;
+        this->clientPipe->data = this->serverPipe->data;
+        uv_pipe_init(this->loop, clientPipe, 1);
+        this->clientPipeFlag = true;
+        return this->clientPipe;
+    }
+
     void start()
     {
         log("conn Start");
@@ -181,12 +201,14 @@ public:
         uv_loop_init(&loop);
 
         auto r = uv_pipe_init(&loop, this->serverPipe, 1);
+        serverPipeFlag = true;
         log("server pipe inited");
         if (r == 0)
         {
             this->pipe = new uv_pipe_t;
             pipe->data = this;
             r = uv_pipe_init(&loop, pipe, 0);
+            pipeFlag = true;
             log("client pipe inited");
             if (r == 0)
             {
@@ -204,15 +226,15 @@ public:
                                       if (status == 0)
                                       {
                                           log("start accept pipe");
-                                          auto serverPipe = handler->getServerPipe();
-                                          auto r = uv_accept(pipe, (uv_stream_t *)serverPipe);
+                                          auto clientPipe = handler->getClientPipe();
+                                          auto r = uv_accept(pipe, (uv_stream_t *)clientPipe);
                                           if (r == 0)
                                           {
                                               log("pipe accepted");
-
-                                              r = uv_read_start((uv_stream_t *)serverPipe, allocBuffer,
+                                              r = uv_read_start((uv_stream_t *)clientPipe, allocBuffer,
                                                                 [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
                                                                 {
+                                                                    log("on read");
                                                                     auto client = (uv_tcp_t *)(stream->data);
                                                                     auto connHandler = (TCPConnectionHandler *)(client->data);
                                                                     connHandler->onPipeRead(stream, nread, buf);
@@ -221,6 +243,7 @@ public:
                                               log("read start");
                                               if (r != 0)
                                               {
+                                                  log("read error");
                                                   handler->closePipe();
                                               }
                                           }
@@ -279,12 +302,7 @@ public:
         }
         else
         {
-            uv_close((uv_handle_t *)this->serverPipe,
-                     [](uv_handle_t *handle)
-                     {
-                         delete handle;
-                         delete handle->data;
-                     });
+            this->closePipe();
         }
 
         uv_run(&loop, UV_RUN_DEFAULT);
@@ -326,11 +344,14 @@ private:
     uv_pipe_t *serverPipe;
     std::string pipeName;
     uv_pipe_t *pipe;
+    uv_pipe_t *clientPipe;
     base::ConfigurationBase *config;
     util::IpAddress clientIpAddress;
     uv_sem_t *connSem;
     uv_tcp_t *mainHandle;
-    bool closeFlag = false;
+    bool serverPipeFlag = false;
+    bool clientPipeFlag = false;
+    bool pipeFlag = false;
 
     TCPBasedProtocol::ProtocolFactory protocolFactory;
     TCPBasedProtocol *protocol = NULL;
