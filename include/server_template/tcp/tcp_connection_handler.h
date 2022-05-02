@@ -192,29 +192,6 @@ public:
                 log("pipe binded");
                 if (r == 0)
                 {
-                    uv_connect_t conn;
-                    conn.data = serverPipe;
-                    uv_pipe_connect(&conn, serverPipe, this->getPipeName(),
-                                    [](uv_connect_t *req, int status)
-                                    {
-                                        log("on pipe connected");
-                                        if (status == 0)
-                                        {
-                                            auto pipe = (uv_pipe_t *)(req->data);
-                                            auto client = (uv_tcp_t *)(pipe->data);
-                                            // send the client over
-                                            auto dummyBuf = uv_buf_init(".", 1);
-                                            auto write = new uv_write_t;
-                                            auto r = uv_write2(write, (uv_stream_t *)pipe, &dummyBuf, 1, (uv_stream_t *)client,
-                                                               [](uv_write_t *req, int status)
-                                                               {
-                                                                   delete req;
-                                                               });
-                                            log("handle sent");
-                                        }
-                                    });
-                    log("pipe connected");
-
                     r = uv_listen((uv_stream_t *)pipe, 128,
                                   [](uv_stream_t *pipe, int status)
                                   {
@@ -252,7 +229,38 @@ public:
                                           handler->closePipe();
                                       }
                                   });
-                    if (r != 0)
+                    if (r == 0)
+                    {
+                        log("start to connect pipe");
+                        uv_connect_t conn;
+                        conn.data = serverPipe;
+                        uv_pipe_connect(&conn, serverPipe, this->getPipeName(),
+                                        [](uv_connect_t *req, int status)
+                                        {
+                                            log("on pipe connected");
+                                            auto pipe = (uv_pipe_t *)(req->data);
+                                            auto client = (uv_tcp_t *)(pipe->data);
+                                            if (status == 0)
+                                            {
+                                                // send the client over
+                                                auto dummyBuf = uv_buf_init(".", 1);
+                                                auto write = new uv_write_t;
+                                                auto r = uv_write2(write, (uv_stream_t *)pipe, &dummyBuf, 1, (uv_stream_t *)client,
+                                                                   [](uv_write_t *req, int status)
+                                                                   {
+                                                                       delete req;
+                                                                   });
+                                                log("handle sent");
+                                            }
+                                            else
+                                            {
+                                                auto handler = (TCPConnectionHandler *)(client->data);
+                                                handler->closePipe();
+                                            }
+                                        });
+                        log("pipe connected");
+                    }
+                    else
                     {
                         this->closePipe();
                     }
