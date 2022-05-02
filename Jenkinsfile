@@ -30,7 +30,7 @@ pipeline {
                        kill -9 $pid
                done'''
                 sh 'export UV_THREADPOOL_SIZE=1024'
-                sh './build/bin/ws_server -j 2'
+                sh 'nohup ./build/bin/ws_server -j 2 &'
             }
         }
     }
