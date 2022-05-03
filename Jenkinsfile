@@ -29,7 +29,7 @@ pipeline {
                 sh '''for pid in $(lsof -t -i:5001); do
                        kill -9 $pid
                done'''
-                sh 'nohup ./build/bin/ws_server -j 2'
+                sh 'export UV_THREADPOOL_SIZE=1024 && nohup ./build/bin/ws_server -j 2'
             }
         }
     }
