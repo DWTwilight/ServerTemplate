@@ -133,10 +133,14 @@ public:
         log("close pipe");
         if (this->serverPipeFlag)
         {
+            uv_close((uv_handle_t *)this->serverPipe->data,
+                     [](uv_handle_t *handle)
+                     {
+                         delete handle;
+                     });
             uv_close((uv_handle_t *)this->serverPipe,
                      [](uv_handle_t *handle)
                      {
-                         delete handle->data;
                          delete handle;
                      });
         }
