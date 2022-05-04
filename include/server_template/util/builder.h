@@ -9,6 +9,8 @@ template <typename T>
 class Builder
 {
 public:
+    virtual ~Builder() {}
+
     virtual T *build() const = 0;
 };
 

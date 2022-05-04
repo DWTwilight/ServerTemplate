@@ -13,20 +13,19 @@ import io.gatling.http.protocol.HttpProtocolBuilder
   *
   * @author Ivan Krizsan
   */
-class TestConnectionSimulation extends Simulation {
+class TestMessageSimulation extends Simulation {
     /* Place for arbitrary Scala code that is to be executed before the simulation begins. */
     before {
-        println("***** TestConnectionSimulation is about to begin! *****")
+        println("***** TestMessageSimulation is about to begin! *****")
     }
 
     /* Place for arbitrary Scala code that is to be executed after the simulation has ended. */
     after {
-        println("***** TestConnectionSimulation has ended! ******")
+        println("***** TestMessageSimulation has ended! ******")
     }
 
     val host = System.getProperty("host", "0.0.0.0:8080")
     val path = System.getProperty("path", "/echo")
-    val duration = Integer.getInteger("duration", 1).intValue()
     val users = Integer.getInteger("users", 1).intValue()
 
     val httpProtocol = http
@@ -40,10 +39,19 @@ class TestConnectionSimulation extends Simulation {
 
     val scn = scenario("WebSocket")
                 .exec(ws("Connect WS").connect(path))
-                .pause(1)
+                .pause(5)
+                .repeat(users, "i") {
+                    exec(
+                    ws("Say Hello WS")
+                        .sendText("Hello")
+                        .await(30)(
+                        ws.checkTextMessage("checkHello").check(regex("Hello"))
+                        )
+                    )
+                }
                 .exec(ws("Close WS").close)
     
     setUp(
-        scn.inject(rampUsers(duration * users).during(duration))
+        scn.inject(atOnceUsers(users))
     ).protocols(httpProtocol)
 }

@@ -1,0 +1,303 @@
+.\TestConnection.bat -Dusers=10 -Dduration=30 -Dhost="110.42.203.38:5001"
+
+# 10
+.net:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                        600 (OK=600    KO=0     )
+> min response time                                     14 (OK=14     KO=-     )
+> max response time                                   1057 (OK=1057   KO=-     )
+> mean response time                                    35 (OK=35     KO=-     )
+> std deviation                                         53 (OK=53     KO=-     )
+> response time 50th percentile                         31 (OK=31     KO=-     )
+> response time 75th percentile                         40 (OK=40     KO=-     )
+> response time 95th percentile                         46 (OK=46     KO=-     )
+> response time 99th percentile                        261 (OK=261    KO=-     )
+> mean requests/sec                                 19.355 (OK=19.355 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                           599 (100%)
+> 800 ms < t < 1200 ms                                   1 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503041916818\index.html
+
+ws_server:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                        600 (OK=600    KO=0     )
+> min response time                                     14 (OK=14     KO=-     )
+> max response time                                   1042 (OK=1042   KO=-     )
+> mean response time                                    32 (OK=32     KO=-     )
+> std deviation                                         48 (OK=48     KO=-     )
+> response time 50th percentile                         30 (OK=30     KO=-     )
+> response time 75th percentile                         39 (OK=39     KO=-     )
+> response time 95th percentile                         46 (OK=46     KO=-     )
+> response time 99th percentile                        163 (OK=163    KO=-     )
+> mean requests/sec                                 19.355 (OK=19.355 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                           599 (100%)
+> 800 ms < t < 1200 ms                                   1 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503040518113\index.html
+
+#20
+.net:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       1200 (OK=1200   KO=0     )
+> min response time                                     13 (OK=13     KO=-     )
+> max response time                                   1042 (OK=1042   KO=-     )
+> mean response time                                    38 (OK=38     KO=-     )
+> std deviation                                         68 (OK=68     KO=-     )
+> response time 50th percentile                         31 (OK=31     KO=-     )
+> response time 75th percentile                         40 (OK=40     KO=-     )
+> response time 95th percentile                         55 (OK=55     KO=-     )
+> response time 99th percentile                        251 (OK=251    KO=-     )
+> mean requests/sec                                  38.71 (OK=38.71  KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          1196 (100%)
+> 800 ms < t < 1200 ms                                   4 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503042327213\index.html
+
+ws_server:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       1200 (OK=1200   KO=0     )
+> min response time                                     13 (OK=13     KO=-     )
+> max response time                                   1044 (OK=1044   KO=-     )
+> mean response time                                    32 (OK=32     KO=-     )
+> std deviation                                         54 (OK=54     KO=-     )
+> response time 50th percentile                         30 (OK=30     KO=-     )
+> response time 75th percentile                         40 (OK=40     KO=-     )
+> response time 95th percentile                         46 (OK=46     KO=-     )
+> response time 99th percentile                        124 (OK=124    KO=-     )
+> mean requests/sec                                  38.71 (OK=38.71  KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          1197 (100%)
+> 800 ms < t < 1200 ms                                   3 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503042729759\index.html
+
+#50
+.net:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       3000 (OK=3000   KO=0     )
+> min response time                                     13 (OK=13     KO=-     )
+> max response time                                   1156 (OK=1156   KO=-     )
+> mean response time                                    41 (OK=41     KO=-     )
+> std deviation                                         66 (OK=66     KO=-     )
+> response time 50th percentile                         31 (OK=31     KO=-     )
+> response time 75th percentile                         41 (OK=41     KO=-     )
+> response time 95th percentile                        131 (OK=131    KO=-     )
+> response time 99th percentile                        251 (OK=251    KO=-     )
+> mean requests/sec                                  93.75 (OK=93.75  KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          2992 (100%)
+> 800 ms < t < 1200 ms                                   8 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503043103071\index.html
+
+ws_server:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       3000 (OK=3000   KO=0     )
+> min response time                                     13 (OK=13     KO=-     )
+> max response time                                   1093 (OK=1093   KO=-     )
+> mean response time                                    42 (OK=42     KO=-     )
+> std deviation                                         69 (OK=69     KO=-     )
+> response time 50th percentile                         32 (OK=32     KO=-     )
+> response time 75th percentile                         41 (OK=41     KO=-     )
+> response time 95th percentile                        136 (OK=136    KO=-     )
+> response time 99th percentile                        253 (OK=253    KO=-     )
+> mean requests/sec                                  93.75 (OK=93.75  KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          2991 (100%)
+> 800 ms < t < 1200 ms                                   9 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503050721736\index.html
+
+#75
+.net
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       4500 (OK=4500   KO=0     )
+> min response time                                     13 (OK=13     KO=-     )
+> max response time                                   1165 (OK=1165   KO=-     )
+> mean response time                                    37 (OK=37     KO=-     )
+> std deviation                                         57 (OK=57     KO=-     )
+> response time 50th percentile                         31 (OK=31     KO=-     )
+> response time 75th percentile                         40 (OK=40     KO=-     )
+> response time 95th percentile                         99 (OK=99     KO=-     )
+> response time 99th percentile                        194 (OK=194    KO=-     )
+> mean requests/sec                                140.625 (OK=140.625 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          4490 (100%)
+> 800 ms < t < 1200 ms                                  10 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503051741264\index.html
+
+ws_server
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       4500 (OK=4500   KO=0     )
+> min response time                                     13 (OK=13     KO=-     )
+> max response time                                   1156 (OK=1156   KO=-     )
+> mean response time                                    42 (OK=42     KO=-     )
+> std deviation                                         50 (OK=50     KO=-     )
+> response time 50th percentile                         32 (OK=32     KO=-     )
+> response time 75th percentile                         42 (OK=42     KO=-     )
+> response time 95th percentile                        146 (OK=146    KO=-     )
+> response time 99th percentile                        206 (OK=206    KO=-     )
+> mean requests/sec                                140.625 (OK=140.625 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          4496 (100%)
+> 800 ms < t < 1200 ms                                   4 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503051938594\index.html
+
+#100
+.net:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       5998 (OK=5996   KO=2     )
+> min response time                                     13 (OK=13     KO=10002 )
+> max response time                                  10003 (OK=7073   KO=10003 )
+> mean response time                                    60 (OK=57     KO=10003 )
+> std deviation                                        324 (OK=269    KO=1     )
+> response time 50th percentile                         31 (OK=31     KO=10003 )
+> response time 75th percentile                         41 (OK=41     KO=10003 )
+> response time 95th percentile                        126 (OK=125    KO=10003 )
+> response time 99th percentile                        398 (OK=398    KO=10003 )
+> mean requests/sec                                146.293 (OK=146.244 KO=0.049 )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          5939 ( 99%)
+> 800 ms < t < 1200 ms                                  39 (  1%)
+> t > 1200 ms                                           18 (  0%)
+> failed                                                 2 (  0%)
+---- Errors --------------------------------------------------------------------
+> i.n.c.ConnectTimeoutException: connection timed out: /110.42.2      2 (50.00%)
+03.38:5000
+> Close WS: Client issued close order but WebSocket was already       2 (50.00%)
+crashed: i.n.c.ConnectTimeoutException: connection timed out: ...
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503051238833\index.html
+
+ws_server:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       5998 (OK=5996   KO=2     )
+> min response time                                     13 (OK=13     KO=10002 )
+> max response time                                  10002 (OK=7047   KO=10002 )
+> mean response time                                    49 (OK=45     KO=10002 )
+> std deviation                                        251 (OK=173    KO=0     )
+> response time 50th percentile                         31 (OK=31     KO=10002 )
+> response time 75th percentile                         40 (OK=40     KO=10002 )
+> response time 95th percentile                         85 (OK=84     KO=10002 )
+> response time 99th percentile                        178 (OK=174    KO=10002 )
+> mean requests/sec                                146.293 (OK=146.244 KO=0.049 )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          5950 ( 99%)
+> 800 ms < t < 1200 ms                                  35 (  1%)
+> t > 1200 ms                                           11 (  0%)
+> failed                                                 2 (  0%)
+---- Errors --------------------------------------------------------------------
+> i.n.c.ConnectTimeoutException: connection timed out: /110.42.2      2 (50.00%)
+03.38:5001
+> Close WS: Client issued close order but WebSocket was already       2 (50.00%)
+crashed: i.n.c.ConnectTimeoutException: connection timed out: ...
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503052322472\index.html
+
+#150
+.net
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       8950 (OK=8900   KO=50    )
+> min response time                                      5 (OK=5      KO=10000 )
+> max response time                                  10003 (OK=7260   KO=10003 )
+> mean response time                                   229 (OK=174    KO=10001 )
+> std deviation                                       1028 (OK=724    KO=1     )
+> response time 50th percentile                         33 (OK=33     KO=10001 )
+> response time 75th percentile                         44 (OK=44     KO=10002 )
+> response time 95th percentile                       1039 (OK=1035   KO=10002 )
+> response time 99th percentile                       7037 (OK=3046   KO=10003 )
+> mean requests/sec                                218.293 (OK=217.073 KO=1.22  )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          8347 ( 93%)
+> 800 ms < t < 1200 ms                                 357 (  4%)
+> t > 1200 ms                                          196 (  2%)
+> failed                                                50 (  1%)
+---- Errors --------------------------------------------------------------------
+> i.n.c.ConnectTimeoutException: connection timed out: /110.42.2     50 (50.00%)
+03.38:5000
+> Close WS: Client issued close order but WebSocket was already      50 (50.00%)
+crashed: i.n.c.ConnectTimeoutException: connection timed out: ...
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503053204816\index.html
+
+ws_server
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                       8961 (OK=8922   KO=39    )
+> min response time                                     13 (OK=13     KO=10000 )
+> max response time                                  10002 (OK=8063   KO=10002 )
+> mean response time                                   236 (OK=193    KO=10002 )
+> std deviation                                       1007 (OK=775    KO=1     )
+> response time 50th percentile                         31 (OK=31     KO=10002 )
+> response time 75th percentile                         41 (OK=41     KO=10002 )
+> response time 95th percentile                       1041 (OK=1039   KO=10002 )
+> response time 99th percentile                       7034 (OK=3071   KO=10002 )
+> mean requests/sec                                218.561 (OK=217.61 KO=0.951 )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                          8259 ( 92%)
+> 800 ms < t < 1200 ms                                 429 (  5%)
+> t > 1200 ms                                          234 (  3%)
+> failed                                                39 (  0%)
+---- Errors --------------------------------------------------------------------
+> i.n.c.ConnectTimeoutException: connection timed out: /110.42.2     39 (50.00%)
+03.38:5001
+> Close WS: Client issued close order but WebSocket was already      39 (50.00%)
+crashed: i.n.c.ConnectTimeoutException: connection timed out: ...
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testconnectionsimulation-20220503052941920\index.html

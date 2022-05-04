@@ -1,0 +1,291 @@
+.\TestMessage.bat -Dusers=100 -Dhost="110.42.203.38:5001"
+
+#100
+.net
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                      20200 (OK=20200  KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                    308 (OK=308    KO=-     )
+> mean response time                                    13 (OK=13     KO=-     )
+> std deviation                                         21 (OK=21     KO=-     )
+> response time 50th percentile                         15 (OK=15     KO=-     )
+> response time 75th percentile                         22 (OK=22     KO=-     )
+> response time 95th percentile                         28 (OK=28     KO=-     )
+> response time 99th percentile                         67 (OK=67     KO=-     )
+> mean requests/sec                                2244.444 (OK=2244.444 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                         20200 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503063057951\index.html
+
+ws_server:
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                      20200 (OK=20200  KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                    370 (OK=370    KO=-     )
+> mean response time                                    13 (OK=13     KO=-     )
+> std deviation                                         22 (OK=22     KO=-     )
+> response time 50th percentile                         15 (OK=15     KO=-     )
+> response time 75th percentile                         21 (OK=21     KO=-     )
+> response time 95th percentile                         28 (OK=28     KO=-     )
+> response time 99th percentile                         73 (OK=73     KO=-     )
+> mean requests/sec                                2244.444 (OK=2244.444 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                         20200 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503062957236\index.html
+
+#200
+.net
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                      80400 (OK=80400  KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                    283 (OK=283    KO=-     )
+> mean response time                                    16 (OK=16     KO=-     )
+> std deviation                                         18 (OK=18     KO=-     )
+> response time 50th percentile                         19 (OK=19     KO=-     )
+> response time 75th percentile                         31 (OK=31     KO=-     )
+> response time 95th percentile                         39 (OK=39     KO=-     )
+> response time 99th percentile                         46 (OK=46     KO=-     )
+> mean requests/sec                                6184.615 (OK=6184.615 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                         80400 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503063148302\index.html
+
+ws_server
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                      80400 (OK=80400  KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                    294 (OK=294    KO=-     )
+> mean response time                                    18 (OK=18     KO=-     )
+> std deviation                                         20 (OK=20     KO=-     )
+> response time 50th percentile                         20 (OK=20     KO=-     )
+> response time 75th percentile                         35 (OK=35     KO=-     )
+> response time 95th percentile                         43 (OK=43     KO=-     )
+> response time 99th percentile                         50 (OK=50     KO=-     )
+> mean requests/sec                                6184.615 (OK=6184.615 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                         80400 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503063828875\index.html
+
+#300
+.net
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     180600 (OK=180600 KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                   1070 (OK=1070   KO=-     )
+> mean response time                                    23 (OK=23     KO=-     )
+> std deviation                                         27 (OK=27     KO=-     )
+> response time 50th percentile                         20 (OK=20     KO=-     )
+> response time 75th percentile                         44 (OK=44     KO=-     )
+> response time 95th percentile                         54 (OK=54     KO=-     )
+> response time 99th percentile                         65 (OK=65     KO=-     )
+> mean requests/sec                                   9030 (OK=9030   KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        180599 (100%)
+> 800 ms < t < 1200 ms                                   1 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503064552764\index.html
+
+ws_server
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     180600 (OK=180600 KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                    620 (OK=620    KO=-     )
+> mean response time                                    22 (OK=22     KO=-     )
+> std deviation                                         25 (OK=25     KO=-     )
+> response time 50th percentile                         21 (OK=21     KO=-     )
+> response time 75th percentile                         45 (OK=45     KO=-     )
+> response time 95th percentile                         53 (OK=53     KO=-     )
+> response time 99th percentile                         61 (OK=61     KO=-     )
+> mean requests/sec                                   9030 (OK=9030   KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        180600 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503063912634\index.html
+
+#400
+.net
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     320800 (OK=320800 KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                    405 (OK=405    KO=-     )
+> mean response time                                    31 (OK=31     KO=-     )
+> std deviation                                         34 (OK=34     KO=-     )
+> response time 50th percentile                         21 (OK=22     KO=-     )
+> response time 75th percentile                         60 (OK=60     KO=-     )
+> response time 95th percentile                         74 (OK=74     KO=-     )
+> response time 99th percentile                         97 (OK=97     KO=-     )
+> mean requests/sec                                  10025 (OK=10025  KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        320800 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503064649393\index.html
+
+ws_server
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     320800 (OK=320800 KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                    444 (OK=444    KO=-     )
+> mean response time                                    29 (OK=29     KO=-     )
+> std deviation                                         35 (OK=35     KO=-     )
+> response time 50th percentile                         23 (OK=23     KO=-     )
+> response time 75th percentile                         57 (OK=57     KO=-     )
+> response time 95th percentile                         69 (OK=69     KO=-     )
+> response time 99th percentile                         82 (OK=82     KO=-     )
+> mean requests/sec                                10348.387 (OK=10348.387 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        320800 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                            0 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503064004566\index.html
+
+#500
+.net
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     501000 (OK=501000 KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                   1239 (OK=1239   KO=-     )
+> mean response time                                    37 (OK=37     KO=-     )
+> std deviation                                         50 (OK=50     KO=-     )
+> response time 50th percentile                         22 (OK=22     KO=-     )
+> response time 75th percentile                         69 (OK=69     KO=-     )
+> response time 95th percentile                         87 (OK=87     KO=-     )
+> response time 99th percentile                        320 (OK=320    KO=-     )
+> mean requests/sec                                10891.304 (OK=10891.304 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        500957 (100%)
+> 800 ms < t < 1200 ms                                  41 (  0%)
+> t > 1200 ms                                            2 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503063235731\index.html
+
+ws_server
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     501000 (OK=501000 KO=0     )
+> min response time                                      0 (OK=0      KO=-     )
+> max response time                                   1352 (OK=1352   KO=-     )
+> mean response time                                    37 (OK=37     KO=-     )
+> std deviation                                         48 (OK=48     KO=-     )
+> response time 50th percentile                         20 (OK=22     KO=-     )
+> response time 75th percentile                         68 (OK=68     KO=-     )
+> response time 95th percentile                         84 (OK=84     KO=-     )
+> response time 99th percentile                        111 (OK=111    KO=-     )
+> mean requests/sec                                11386.364 (OK=11386.364 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        500989 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                           11 (  0%)
+> failed                                                 0 (  0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503064104126\index.html
+
+#600
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     718796 (OK=716392 KO=2404  )
+> min response time                                      0 (OK=0      KO=0     )
+> max response time                                  10046 (OK=3096   KO=10046 )
+> mean response time                                    45 (OK=45     KO=17    )
+> std deviation                                         70 (OK=66     KO=408   )
+> response time 50th percentile                         11 (OK=22     KO=0     )
+> response time 75th percentile                         79 (OK=79     KO=0     )
+> response time 95th percentile                        105 (OK=105    KO=0     )
+> response time 99th percentile                        385 (OK=385    KO=0     )
+> mean requests/sec                                11409.46 (OK=11371.302 KO=38.159)
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        716339 (100%)
+> 800 ms < t < 1200 ms                                  25 (  0%)
+> t > 1200 ms                                           28 (  0%)
+> failed                                              2404 (  0%)
+---- Errors --------------------------------------------------------------------
+> Client issued text frame but server has closed the WebSocket a   2400 (99.67%)
+nd max reconnects is reached
+> i.n.c.ConnectTimeoutException: connection timed out: /110.42.2      4 ( 0.17%)
+03.38:5000
+> Close WS: Client issued close order but WebSocket was already       4 ( 0.17%)
+crashed: i.n.c.ConnectTimeoutException: connection timed out: ...
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503063535313\index.html
+
+ws_server
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     721200 (OK=721130 KO=70    )
+> min response time                                      0 (OK=0      KO=30000 )
+> max response time                                  46097 (OK=46097  KO=30002 )
+> mean response time                                    38 (OK=35     KO=30001 )
+> std deviation                                        497 (OK=400    KO=1     )
+> response time 50th percentile                         16 (OK=16     KO=30001 )
+> response time 75th percentile                         62 (OK=62     KO=30001 )
+> response time 95th percentile                         80 (OK=80     KO=30002 )
+> response time 99th percentile                        104 (OK=104    KO=30002 )
+> mean requests/sec                                10452.174 (OK=10451.159 KO=1.014 )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        721007 (100%)
+> 800 ms < t < 1200 ms                                   0 (  0%)
+> t > 1200 ms                                          123 (  0%)
+> failed                                                70 (  0%)
+---- Errors --------------------------------------------------------------------
+> Check checkHello timeout                                           70 (100.0%)
+================================================================================
+
+Reports generated in 0s.
+Please open the following file: C:\Users\44641\Desktop\GitWorkBench\gatling-charts-highcharts-bundle-3.7.6\results\testmessagesimulation-20220503064239970\index.html
