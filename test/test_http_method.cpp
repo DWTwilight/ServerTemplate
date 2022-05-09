@@ -1,4 +1,5 @@
 #include <server_template/http/http_method.h>
+#include <cstring>
 #define ASSERT(exp) \
     if (!(exp))     \
         return -1;

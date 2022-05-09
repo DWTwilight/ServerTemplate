@@ -1,4 +1,5 @@
 #include <server_template/util/uri.h>
+#include <cstring>
 #define ASSERT(exp) \
     if (!(exp))     \
         return -1;
