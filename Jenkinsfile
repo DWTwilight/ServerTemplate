@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'cd ./build/test && sudo cmake --build ../ && ctest'
+                sh 'cd ./build/test && cmake --build ../ && ctest'
             }
         }
         stage('Build') {
