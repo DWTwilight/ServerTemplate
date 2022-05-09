@@ -19,6 +19,11 @@ pipeline {
                 sh 'cmake --build ./build --config Release --target clean'
             }
         }
+        stage('Test') {
+            steps {
+                sh 'cd ./build/test && sudo cmake --build ../ && ctest'
+            }
+        }
         stage('Build') {
             steps {
                 sh 'cmake --build ./build/ --config Release --target ws_server'
