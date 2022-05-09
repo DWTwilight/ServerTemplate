@@ -2,6 +2,7 @@
 #define SERVER_TEMPLATE_BASE_PARSER_BASE_H_
 
 #include "base_ns.h"
+#include <cstring>
 
 SERVER_TEMPLATE_BASE_NAMESPACE_BEGIN
 
