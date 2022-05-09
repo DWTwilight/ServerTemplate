@@ -33,5 +33,5 @@ int main()
     ByteArray bytes;
     response.toBytes(bytes);
 
-    ASSERT(checkBytes(bytes.data(), (uint8_t*)CORRECT_RESPONSE, bytes.size()))
+    ASSERT(checkBytes(bytes.data(), (uint8_t*)CORRECT_RESPONSE, 37))
 }
