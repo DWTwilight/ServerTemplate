@@ -9,7 +9,7 @@ SERVER_TEMPLATE_WS_NAMESPACE_BEGIN
 class WebsocketMessageBuilder
 {
 public:
-    static void build(WebsocketMessage& message, util::ByteArray &bytes, WebsocketMessage::Type type, std::vector<WebsocketPMEInstance>& extensions)
+    static void build(WebsocketMessage& message, const util::ByteArray &bytes, WebsocketMessage::Type type, std::vector<WebsocketPMEInstance>& extensions)
     {
         message.payload = bytes;
         message.type = type;
