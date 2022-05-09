@@ -81,7 +81,7 @@ public:
         {
             return false;
         }
-        data.swap(std::vector<T>());
+        data.clear();
         data.reserve(count / sizeof(T));
         for (size_t i = 0; i < count; i += sizeof(T))
         {
